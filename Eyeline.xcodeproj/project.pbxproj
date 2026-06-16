@@ -9,10 +9,12 @@
 /* Begin PBXBuildFile section */
 		465208962B94EA4E31B04078 /* EyelineKit in Frameworks */ = {isa = PBXBuildFile; productRef = 05A627A608E04B15BC5E2DD4 /* EyelineKit */; };
 		9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E207A5ED0C550289A9717D /* EyelineApp.swift */; };
+		AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1F926B06390EE2A0327070EF /* EyelineKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = EyelineKit; path = EyelineKit; sourceTree = SOURCE_ROOT; };
+		2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		50E207A5ED0C550289A9717D /* EyelineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyelineApp.swift; sourceTree = "<group>"; };
 		F3D8033D307D432FDAD763A8 /* Eyeline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Eyeline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -40,6 +42,7 @@
 		A1DDBF8092E9B2241CB943F8 /* Eyeline */ = {
 			isa = PBXGroup;
 			children = (
+				2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */,
 				50E207A5ED0C550289A9717D /* EyelineApp.swift */,
 			);
 			path = Eyeline;
@@ -125,6 +128,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */,
 				9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

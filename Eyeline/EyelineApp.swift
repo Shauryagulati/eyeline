@@ -2,9 +2,10 @@ import SwiftUI
 
 @main
 struct EyelineApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
-        // No main window — Eyeline is a menu-bar-only app (LSUIElement).
-        // The status item + notch panel arrive in the next steps.
+        // No main window. Everything lives in the status item + the notch panel.
         Settings { EmptyView() }
     }
 }
