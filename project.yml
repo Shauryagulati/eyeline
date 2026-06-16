@@ -1,0 +1,45 @@
+# XcodeGen spec for the Eyeline app target. Regenerate the project with:
+#   xcodegen generate
+# EyelineKit (the tested brain) stays a standalone SwiftPM package; the app links it.
+name: Eyeline
+options:
+  bundleIdPrefix: com.sgulati
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+packages:
+  EyelineKit:
+    path: EyelineKit
+targets:
+  Eyeline:
+    type: application
+    platform: macOS
+    sources:
+      - Eyeline
+    dependencies:
+      - package: EyelineKit
+        product: EyelineKit
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.sgulati.Eyeline
+      MARKETING_VERSION: "0.0.1"
+      CURRENT_PROJECT_VERSION: "1"
+      # FIX #1: pin the app target to Swift 5 language mode, matching EyelineKit's
+      # swiftLanguageModes [.v5], so AppKit observer closures capturing @MainActor self
+      # don't trip Swift 6 strict-concurrency errors.
+      SWIFT_VERSION: "5.0"
+      GENERATE_INFOPLIST_FILE: "YES"
+      INFOPLIST_KEY_LSUIElement: "YES"
+      # Sign to run locally (ad-hoc) — no Apple Developer account needed for this milestone.
+      CODE_SIGN_STYLE: Manual
+      CODE_SIGN_IDENTITY: "-"
+# Explicit, shared scheme so `xcodebuild -scheme Eyeline` is reproducible (CI-safe) instead
+# of relying on Xcode auto-creating an ephemeral scheme into ignored xcuserdata.
+schemes:
+  Eyeline:
+    build:
+      targets:
+        Eyeline: all
+    run:
+      config: Debug
+    archive:
+      config: Release
