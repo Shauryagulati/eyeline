@@ -2,9 +2,12 @@ import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
+    private var notch: NotchController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        notch = NotchController()
         setUpStatusItem()
+        notch.show()
     }
 
     private func setUpStatusItem() {
