@@ -1,0 +1,20 @@
+# Private working docs (specs, plans, design) — keep the whole docs/ tree out of git for now.
+# To publish a specific doc later, switch to whitelist style, e.g.:
+#   docs/*
+#   !docs/some-public-doc.md
+docs/
+CLAUDE.local.md
+*.local.md
+
+# Swift Package Manager
+.build/
+.swiftpm/
+# (Package.resolved is intentionally NOT ignored — commit it for reproducible builds.)
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# macOS
+.DS_Store
