@@ -8,7 +8,10 @@ import EyelineKit
 final class NotchController: NSObject {
     private let viewModel: TeleprompterViewModel
     private let panel: NotchPanel
-    private let driver: ScrollDriver = TimedScrollDriver(pointsPerSecond: 60)
+    private var driver: ScrollDriver = TimedScrollDriver(pointsPerSecond: 60)
+    private var amplitudeDriver: AmplitudeScrollDriver?
+    private var voiceGated = false
+    private let meter = MicLevelMeter()
     private let panelSize = CGSize(width: 360, height: 140)
     private var timer: Timer?
 
@@ -45,14 +48,66 @@ final class NotchController: NSObject {
         }
     }
 
+    /// Switch between timed and voice-gated scrolling. Stops playback and returns to the top.
+    func setVoiceGated(_ on: Bool) {
+        driver.pause()
+        stopTimer()
+        meter.stop()
+        voiceGated = on
+        if on {
+            let d = AmplitudeScrollDriver(pointsPerSecond: 60)
+            amplitudeDriver = d
+            driver = d
+        } else {
+            amplitudeDriver = nil
+            driver = TimedScrollDriver(pointsPerSecond: 60)
+        }
+        viewModel.offset = 0
+    }
+
     func togglePlay() {
         if driver.isPlaying {
             driver.pause()
             stopTimer()
+            meter.stop()
+            return
+        }
+        if voiceGated {
+            MicPermission.ensureAccess { granted in
+                Task { @MainActor in
+                    guard granted else { self.presentMicDeniedAlert(); return }
+                    self.startVoiceGatedPlayback()
+                }
+            }
         } else {
             driver.play()
             startTimer()
         }
+    }
+
+    private func startVoiceGatedPlayback() {
+        meter.onLevel = { [weak self] level in
+            self?.amplitudeDriver?.ingest(level: level)
+        }
+        do {
+            try meter.start()
+            driver.play()
+            startTimer()
+        } catch {
+            presentMicDeniedAlert(
+                message: "Couldn't start the microphone: \(error.localizedDescription)")
+        }
+    }
+
+    private func presentMicDeniedAlert(
+        message: String = "Eyeline needs microphone access to scroll with your voice. "
+            + "Enable it in System Settings ▸ Privacy & Security ▸ Microphone."
+    ) {
+        let alert = NSAlert()
+        alert.messageText = "Microphone access needed"
+        alert.informativeText = message
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 
     func restart() {

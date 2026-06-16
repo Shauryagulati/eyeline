@@ -7,6 +7,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var notch: NotchController!
+    private var voiceItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         notch = NotchController()
@@ -31,6 +32,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         restartItem.target = self
         menu.addItem(restartItem)
 
+        let voiceItem = NSMenuItem(
+            title: "Voice-gated scrolling", action: #selector(toggleVoiceGated), keyEquivalent: "v")
+        voiceItem.target = self
+        voiceItem.state = .off
+        menu.addItem(voiceItem)
+        self.voiceItem = voiceItem
+
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(
             title: "Quit Eyeline",
@@ -42,4 +50,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // panel means there's no key window to anchor the responder chain.
     @objc private func togglePlay() { notch.togglePlay() }
     @objc private func restart() { notch.restart() }
+
+    @objc private func toggleVoiceGated() {
+        let on = (voiceItem.state == .off)
+        voiceItem.state = on ? .on : .off
+        notch.setVoiceGated(on)
+    }
 }
