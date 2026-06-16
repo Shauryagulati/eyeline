@@ -10,6 +10,7 @@
 		18B78C6DC55475AC5D1DF081 /* TeleprompterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB00E9501BB3A06490F76EB /* TeleprompterView.swift */; };
 		217C4BB01095D2EFFF92CEFA /* NotchPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19D3F9B00EEAB1E96A87B83A /* NotchPanel.swift */; };
 		465208962B94EA4E31B04078 /* EyelineKit in Frameworks */ = {isa = PBXBuildFile; productRef = 05A627A608E04B15BC5E2DD4 /* EyelineKit */; };
+		4F4D2A13561EEE3192DD4920 /* MicLevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */; };
 		9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E207A5ED0C550289A9717D /* EyelineApp.swift */; };
 		AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43009D7A794DB98103695D4 /* NotchController.swift */; };
 		AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */; };
@@ -22,6 +23,7 @@
 		2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		50E207A5ED0C550289A9717D /* EyelineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyelineApp.swift; sourceTree = "<group>"; };
 		E43009D7A794DB98103695D4 /* NotchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchController.swift; sourceTree = "<group>"; };
+		EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicLevelMeter.swift; sourceTree = "<group>"; };
 		F3D8033D307D432FDAD763A8 /* Eyeline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Eyeline.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -50,6 +52,7 @@
 			children = (
 				2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */,
 				50E207A5ED0C550289A9717D /* EyelineApp.swift */,
+				EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */,
 				E43009D7A794DB98103695D4 /* NotchController.swift */,
 				19D3F9B00EEAB1E96A87B83A /* NotchPanel.swift */,
 				1EB00E9501BB3A06490F76EB /* TeleprompterView.swift */,
@@ -139,6 +142,7 @@
 			files = (
 				AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */,
 				9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */,
+				4F4D2A13561EEE3192DD4920 /* MicLevelMeter.swift in Sources */,
 				AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */,
 				217C4BB01095D2EFFF92CEFA /* NotchPanel.swift in Sources */,
 				18B78C6DC55475AC5D1DF081 /* TeleprompterView.swift in Sources */,
@@ -214,6 +218,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Eyeline follows your voice to auto-scroll the teleprompter. Audio is processed on-device and never recorded or sent anywhere.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -298,6 +303,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Eyeline follows your voice to auto-scroll the teleprompter. Audio is processed on-device and never recorded or sent anywhere.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

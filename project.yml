@@ -29,6 +29,10 @@ targets:
       SWIFT_VERSION: "5.0"
       GENERATE_INFOPLIST_FILE: "YES"
       INFOPLIST_KEY_LSUIElement: "YES"
+      # M2: microphone usage string (voice-gated scrolling). No physical Info.plist — this
+      # injects NSMicrophoneUsageDescription via the generated plist. Not sandboxed, so no
+      # audio-input entitlement is needed.
+      INFOPLIST_KEY_NSMicrophoneUsageDescription: "Eyeline follows your voice to auto-scroll the teleprompter. Audio is processed on-device and never recorded or sent anywhere."
       # Sign to run locally (ad-hoc) — no Apple Developer account needed for this milestone.
       CODE_SIGN_STYLE: Manual
       CODE_SIGN_IDENTITY: "-"
