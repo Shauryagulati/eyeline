@@ -1,0 +1,39 @@
+import AppKit
+import SwiftUI
+
+/// Hosts `ScriptsView` in a standard window. Because Eyeline is an LSUIElement (agent) app, a
+/// window can't become key for keyboard input unless the app is a regular app — so we switch to
+/// `.regular` while the editor is open and revert to `.accessory` when it closes (design spec §8.3).
+@MainActor
+final class ScriptsWindowController: NSObject, NSWindowDelegate {
+    private var window: NSWindow?
+    private let model: ScriptLibraryViewModel
+
+    init(model: ScriptLibraryViewModel) {
+        self.model = model
+        super.init()
+    }
+
+    func show() {
+        if window == nil {
+            let hosting = NSHostingController(rootView: ScriptsView(model: model))
+            let win = NSWindow(contentViewController: hosting)
+            win.title = "Scripts"
+            win.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+            win.setContentSize(NSSize(width: 760, height: 500))
+            win.isReleasedWhenClosed = false
+            win.delegate = self
+            win.center()
+            window = win
+        }
+        // Become a regular app so the editor's TextField/TextEditor accept keyboard input.
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate()
+        window?.makeKeyAndOrderFront(nil)
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        // Back to a menu-bar-only agent when the editor is dismissed.
+        NSApp.setActivationPolicy(.accessory)
+    }
+}
