@@ -1,4 +1,5 @@
 import AppKit
+import QuartzCore   // CACurrentMediaTime
 import EyelineKit
 
 // NSObject subclass so the scroll-loop Timer (added in Task 7) can use a target/selector
@@ -7,7 +8,9 @@ import EyelineKit
 final class NotchController: NSObject {
     private let viewModel: TeleprompterViewModel
     private let panel: NotchPanel
+    private let driver: ScrollDriver = TimedScrollDriver(pointsPerSecond: 60)
     private let panelSize = CGSize(width: 360, height: 140)
+    private var timer: Timer?
 
     override init() {
         viewModel = TeleprompterViewModel(script:
@@ -30,6 +33,46 @@ final class NotchController: NSObject {
             MainActor.assumeIsolated { self?.repositionForActiveScreen() }
         }
     }
+
+    func togglePlay() {
+        if driver.isPlaying {
+            driver.pause()
+            stopTimer()
+        } else {
+            driver.play()
+            startTimer()
+        }
+    }
+
+    func restart() {
+        driver.reset()
+        viewModel.offset = 0
+    }
+
+    // MARK: Scroll loop
+
+    private func startTimer() {
+        guard timer == nil else { return }
+        // Target/selector form: Obj-C dispatches `tick` on the main run loop, so there is
+        // no Sendable closure to trip Swift 6 concurrency checks.
+        let t = Timer(timeInterval: 1.0 / 60.0,
+                      target: self, selector: #selector(tick),
+                      userInfo: nil, repeats: true)
+        RunLoop.main.add(t, forMode: .common)
+        timer = t
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    @objc private func tick() {
+        driver.advance(to: CACurrentMediaTime())
+        viewModel.offset = driver.offset
+    }
+
+    // MARK: Positioning
 
     /// Pin the panel under the notch of the notched display, falling back to main.
     private func repositionForActiveScreen() {
