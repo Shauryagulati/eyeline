@@ -25,12 +25,23 @@ final class NotchController: NSObject {
     func show() {
         repositionForActiveScreen()
         panel.orderFrontRegardless()
-        NotificationCenter.default.addObserver(
+
+        // Both observers are delivered on .main (main thread = main actor); assumeIsolated
+        // lets the calls into main-actor state stay statically known and warning-free. [fix #1]
+        let center = NotificationCenter.default
+        center.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil, queue: .main) { [weak self] _ in
-            // Delivered on .main (main thread = main actor); assert that so the call into
-            // main-actor state is statically known and warning-free (Swift-6-clean). [fix #1]
             MainActor.assumeIsolated { self?.repositionForActiveScreen() }
+        }
+        // Re-pin and re-assert front on wake (lid open / display reconfigure).
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification,
+            object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.repositionForActiveScreen()
+                self?.panel.orderFrontRegardless()
+            }
         }
     }
 
