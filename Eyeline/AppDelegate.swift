@@ -1,4 +1,5 @@
 import AppKit
+import EyelineKit
 
 // Every AppKit app-delegate callback (and our menu actions) runs on the main thread, so
 // isolate the whole delegate to the main actor. This lets the @objc menu handlers call
@@ -8,9 +9,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var notch: NotchController!
     private var voiceItem: NSMenuItem!
+    private var scriptLibrary: ScriptLibraryViewModel!
+    private var scriptsWindow: ScriptsWindowController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         notch = NotchController()
+
+        let store = ScriptStore(persistence: UserDefaultsScriptPersistence())
+        let library = ScriptLibraryViewModel(store: store)
+        library.onSelectedTextChange = { [weak notch] text in
+            notch?.setText(text)
+        }
+        notch.setText(library.selectedScript?.body ?? "")
+        self.scriptLibrary = library
+        self.scriptsWindow = ScriptsWindowController(model: library)
+
         setUpStatusItem()
         notch.show()
     }
@@ -39,6 +52,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(voiceItem)
         self.voiceItem = voiceItem
 
+        let scriptsItem = NSMenuItem(
+            title: "Scripts…", action: #selector(openScripts), keyEquivalent: "s")
+        scriptsItem.target = self
+        menu.addItem(scriptsItem)
+
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(
             title: "Quit Eyeline",
@@ -55,5 +73,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let on = (voiceItem.state == .off)
         voiceItem.state = on ? .on : .off
         notch.setVoiceGated(on)
+    }
+
+    @objc private func openScripts() {
+        scriptsWindow.show()
     }
 }

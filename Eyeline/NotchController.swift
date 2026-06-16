@@ -16,11 +16,7 @@ final class NotchController: NSObject {
     private var timer: Timer?
 
     override init() {
-        viewModel = TeleprompterViewModel(script:
-            "Paste your script here. Eyeline scrolls it right under your notch so your "
-            + "eyes stay on the camera. This is the walking skeleton — constant-speed "
-            + "scroll, play and pause from the menu bar. Keep reading and the text rolls "
-            + "upward at a steady pace until it runs off the top.")
+        viewModel = TeleprompterViewModel()
         panel = NotchPanel(rootView: TeleprompterView(model: viewModel))
         super.init()
     }
@@ -113,6 +109,11 @@ final class NotchController: NSObject {
     func restart() {
         driver.reset()
         viewModel.offset = 0
+    }
+
+    /// Push new script text into the teleprompter (called by the app when selection/body changes).
+    func setText(_ text: String) {
+        viewModel.text = text
     }
 
     // MARK: Scroll loop

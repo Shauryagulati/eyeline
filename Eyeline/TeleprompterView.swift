@@ -3,8 +3,7 @@ import SwiftUI
 @MainActor
 final class TeleprompterViewModel: ObservableObject {
     @Published var offset: Double = 0
-    let script: String
-    init(script: String) { self.script = script }
+    @Published var text: String = ""
 }
 
 struct TeleprompterView: View {
@@ -15,7 +14,7 @@ struct TeleprompterView: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(.black.opacity(0.85))
 
-            Text(model.script)
+            Text(model.text)
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
