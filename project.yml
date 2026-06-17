@@ -38,6 +38,9 @@ targets:
       # injects NSMicrophoneUsageDescription via the generated plist. Not sandboxed, so no
       # audio-input entitlement is needed.
       INFOPLIST_KEY_NSMicrophoneUsageDescription: "Eyeline follows your voice to auto-scroll the teleprompter. Audio is processed on-device and never recorded or sent anywhere."
+      # Phase 2 Voice mode: on-device speech recognition usage string. Recognition is forced
+      # on-device (requiresOnDeviceRecognition), so audio never leaves the Mac.
+      INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Eyeline recognizes your speech on-device to follow your place in the script and auto-scroll. Nothing is recorded or sent anywhere."
       # Sign to run locally (ad-hoc) — no Apple Developer account needed for this milestone.
       CODE_SIGN_STYLE: Manual
       CODE_SIGN_IDENTITY: "-"

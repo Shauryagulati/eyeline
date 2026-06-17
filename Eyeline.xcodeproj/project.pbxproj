@@ -20,10 +20,12 @@
 		A00D6E6A169E48BB775BADC4 /* ScriptLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8CBD74FC12E5202DC02050 /* ScriptLibraryViewModel.swift */; };
 		A0F2108F8450B861DCF6FD3F /* MicPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1B11C1BA7CB44AF7D6035E /* MicPermission.swift */; };
 		AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43009D7A794DB98103695D4 /* NotchController.swift */; };
+		AD6A141ADCB49C866194F50A /* SFSpeechSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3469941DFB9BAB88DDD6F7E /* SFSpeechSource.swift */; };
 		AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */; };
 		C71064159BBAA24DA3BA758F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1306AF4E30BD2008C3A15B23 /* SettingsView.swift */; };
 		CD794CD0334F1D9EAAFA526A /* AppActivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 683A28EC2EB043A4089CD8BC /* AppActivation.swift */; };
 		D22F7EB97F98D33439B641B6 /* ScriptsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */; };
+		DBB5083A5855F3AF89D33252 /* SpeechSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EE2F02E41F2988D6A71D91 /* SpeechSource.swift */; };
 		E55055F7EB5A7E11684E0A50 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79E75519469342627369F94 /* SettingsViewModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,10 +38,12 @@
 		3CFD4AAA887C4C00C9D619D8 /* PanelMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMetrics.swift; sourceTree = "<group>"; };
 		4CCD401ABCEE052C936AECBB /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shortcuts.swift; sourceTree = "<group>"; };
 		50E207A5ED0C550289A9717D /* EyelineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyelineApp.swift; sourceTree = "<group>"; };
+		55EE2F02E41F2988D6A71D91 /* SpeechSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSource.swift; sourceTree = "<group>"; };
 		683A28EC2EB043A4089CD8BC /* AppActivation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppActivation.swift; sourceTree = "<group>"; };
 		89F9D7A9DA622341FD4EC247 /* ScriptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsView.swift; sourceTree = "<group>"; };
 		8E8CBD74FC12E5202DC02050 /* ScriptLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptLibraryViewModel.swift; sourceTree = "<group>"; };
 		971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsWindowController.swift; sourceTree = "<group>"; };
+		C3469941DFB9BAB88DDD6F7E /* SFSpeechSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFSpeechSource.swift; sourceTree = "<group>"; };
 		C79E75519469342627369F94 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		CA1B11C1BA7CB44AF7D6035E /* MicPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicPermission.swift; sourceTree = "<group>"; };
 		E43009D7A794DB98103695D4 /* NotchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchController.swift; sourceTree = "<group>"; };
@@ -86,7 +90,9 @@
 				1306AF4E30BD2008C3A15B23 /* SettingsView.swift */,
 				C79E75519469342627369F94 /* SettingsViewModel.swift */,
 				FE3B0F9096113F24EE996A59 /* SettingsWindowController.swift */,
+				C3469941DFB9BAB88DDD6F7E /* SFSpeechSource.swift */,
 				4CCD401ABCEE052C936AECBB /* Shortcuts.swift */,
+				55EE2F02E41F2988D6A71D91 /* SpeechSource.swift */,
 				1EB00E9501BB3A06490F76EB /* TeleprompterView.swift */,
 			);
 			path = Eyeline;
@@ -182,6 +188,7 @@
 				AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */,
 				217C4BB01095D2EFFF92CEFA /* NotchPanel.swift in Sources */,
 				9B19F18B14F1FC4D4CBD9A7E /* PanelMetrics.swift in Sources */,
+				AD6A141ADCB49C866194F50A /* SFSpeechSource.swift in Sources */,
 				A00D6E6A169E48BB775BADC4 /* ScriptLibraryViewModel.swift in Sources */,
 				32362A69BAD4F37092E21341 /* ScriptsView.swift in Sources */,
 				D22F7EB97F98D33439B641B6 /* ScriptsWindowController.swift in Sources */,
@@ -189,6 +196,7 @@
 				E55055F7EB5A7E11684E0A50 /* SettingsViewModel.swift in Sources */,
 				9589031EAE9147D39F53E11D /* SettingsWindowController.swift in Sources */,
 				3BC5D73C565C438F231A8851 /* Shortcuts.swift in Sources */,
+				DBB5083A5855F3AF89D33252 /* SpeechSource.swift in Sources */,
 				18B78C6DC55475AC5D1DF081 /* TeleprompterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,6 +271,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Eyeline follows your voice to auto-scroll the teleprompter. Audio is processed on-device and never recorded or sent anywhere.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Eyeline recognizes your speech on-device to follow your place in the script and auto-scroll. Nothing is recorded or sent anywhere.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -348,6 +357,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Eyeline follows your voice to auto-scroll the teleprompter. Audio is processed on-device and never recorded or sent anywhere.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Eyeline recognizes your speech on-device to follow your place in the script and auto-scroll. Nothing is recorded or sent anywhere.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

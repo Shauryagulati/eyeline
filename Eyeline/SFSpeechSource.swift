@@ -1,0 +1,125 @@
+import AVFoundation
+import Speech
+
+/// On-device speech recognizer for Voice mode. Taps the default input, feeds an
+/// `SFSpeechAudioBufferRecognitionRequest` with `requiresOnDeviceRecognition = true`, and emits a
+/// rolling tail of the most recent recognized words on the main actor. The `ScriptAligner` only
+/// ever sees that tail, so it stays agnostic to where one recognition session ends and the next
+/// begins.
+///
+/// SFSpeech caps a single request's duration, so the session is restarted transparently when it
+/// finalizes or errors: the committed tail carries across, the user sees no gap. Sibling of
+/// `MicLevelMeter`; only one of the two runs at a time (Voice and Loudness modes are exclusive).
+///
+/// App-layer glue — verified by dogfooding, not unit tests (the alignment logic it feeds lives in
+/// EyelineKit and is tested there).
+@MainActor
+final class SFSpeechSource: SpeechSource {
+    var onWords: (([String]) -> Void)?
+
+    private let recognizer: SFSpeechRecognizer
+    private let engine = AVAudioEngine()
+    private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var task: SFSpeechRecognitionTask?
+    private var running = false
+
+    /// Words finalized by previous sessions, kept so the rolling tail is continuous across
+    /// restarts. Capped to `tailLength` — we only ever need the tail.
+    private var committedWords: [String] = []
+    /// How many trailing words to surface to the aligner each update.
+    private let tailLength = 12
+
+    /// Fails if the current locale has no recognizer at all. On-device support is checked
+    /// separately via `SpeechPermission.ensureOnDeviceAccess` before Voice mode commits.
+    init?() {
+        guard let r = SFSpeechRecognizer() else { return nil }
+        recognizer = r
+    }
+
+    func start() throws {
+        guard !running else { return }
+        committedWords = []
+        try beginSession()
+        running = true
+    }
+
+    func stop() {
+        running = false
+        endSession()
+        committedWords = []
+    }
+
+    // MARK: - Session lifecycle
+
+    private func beginSession() throws {
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.requiresOnDeviceRecognition = true   // 100% local — audio never leaves the device
+        request.shouldReportPartialResults = true
+        request.taskHint = .dictation
+        self.request = request
+
+        let input = engine.inputNode
+        let format = input.inputFormat(forBus: 0)
+        // The tap runs on a realtime audio thread; capture only the Sendable request, not self.
+        input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
+            request.append(buffer)
+        }
+        engine.prepare()
+        try engine.start()
+
+        task = recognizer.recognitionTask(with: request) { [weak self] result, error in
+            // Delivered on an arbitrary queue — pull out Sendable primitives, then hop to main.
+            let words = result.map { Self.split($0.bestTranscription.formattedString) }
+            let isFinal = result?.isFinal ?? false
+            let failed = error != nil
+            Task { @MainActor in
+                self?.handle(sessionWords: words, isFinal: isFinal, failed: failed)
+            }
+        }
+    }
+
+    private func endSession() {
+        engine.inputNode.removeTap(onBus: 0)
+        if engine.isRunning { engine.stop() }
+        request?.endAudio()
+        task?.cancel()
+        task = nil
+        request = nil
+    }
+
+    /// Restart without dropping the rolling tail; ignored if Voice mode has stopped.
+    private func restartSession() {
+        guard running else { return }
+        endSession()
+        do {
+            try beginSession()
+        } catch {
+            // If we can't get audio back, surface an empty tail and give up this session; the
+            // aligner will simply hold. Phase C decides whether to revert the mode.
+            running = false
+        }
+    }
+
+    // MARK: - Result handling
+
+    private func handle(sessionWords: [String]?, isFinal: Bool, failed: Bool) {
+        guard running else { return }
+
+        if let sessionWords {
+            let tail = Array((committedWords + sessionWords).suffix(tailLength))
+            onWords?(tail)
+            if isFinal {
+                // Fold this session's words into the carried tail before the next session starts.
+                committedWords = tail
+            }
+        }
+
+        if isFinal || failed {
+            restartSession()
+        }
+    }
+
+    private static func split(_ s: String) -> [String] {
+        s.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+    }
+}
