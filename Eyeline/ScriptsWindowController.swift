@@ -33,7 +33,11 @@ final class ScriptsWindowController: NSObject, NSWindowDelegate {
     }
 
     func windowWillClose(_ notification: Notification) {
-        // Back to a menu-bar-only agent when the editor is dismissed.
-        NSApp.setActivationPolicy(.accessory)
+        // Back to a menu-bar-only agent — but ONLY if no other managed window is still open.
+        // Settings + Scripts each flip the activation policy; closing one while the other is
+        // still on screen must not strand it under .accessory (no Dock icon, can't become key).
+        if !AppActivation.otherTitledWindowVisible(besides: notification.object as? NSWindow) {
+            NSApp.setActivationPolicy(.accessory)
+        }
     }
 }

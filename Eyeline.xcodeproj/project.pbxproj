@@ -22,6 +22,7 @@
 		AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43009D7A794DB98103695D4 /* NotchController.swift */; };
 		AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */; };
 		C71064159BBAA24DA3BA758F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1306AF4E30BD2008C3A15B23 /* SettingsView.swift */; };
+		CD794CD0334F1D9EAAFA526A /* AppActivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 683A28EC2EB043A4089CD8BC /* AppActivation.swift */; };
 		D22F7EB97F98D33439B641B6 /* ScriptsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */; };
 		E55055F7EB5A7E11684E0A50 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79E75519469342627369F94 /* SettingsViewModel.swift */; };
 /* End PBXBuildFile section */
@@ -35,6 +36,7 @@
 		3CFD4AAA887C4C00C9D619D8 /* PanelMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMetrics.swift; sourceTree = "<group>"; };
 		4CCD401ABCEE052C936AECBB /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shortcuts.swift; sourceTree = "<group>"; };
 		50E207A5ED0C550289A9717D /* EyelineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyelineApp.swift; sourceTree = "<group>"; };
+		683A28EC2EB043A4089CD8BC /* AppActivation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppActivation.swift; sourceTree = "<group>"; };
 		89F9D7A9DA622341FD4EC247 /* ScriptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsView.swift; sourceTree = "<group>"; };
 		8E8CBD74FC12E5202DC02050 /* ScriptLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptLibraryViewModel.swift; sourceTree = "<group>"; };
 		971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsWindowController.swift; sourceTree = "<group>"; };
@@ -70,6 +72,7 @@
 		A1DDBF8092E9B2241CB943F8 /* Eyeline */ = {
 			isa = PBXGroup;
 			children = (
+				683A28EC2EB043A4089CD8BC /* AppActivation.swift */,
 				2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */,
 				50E207A5ED0C550289A9717D /* EyelineApp.swift */,
 				EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */,
@@ -171,6 +174,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD794CD0334F1D9EAAFA526A /* AppActivation.swift in Sources */,
 				AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */,
 				9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */,
 				4F4D2A13561EEE3192DD4920 /* MicLevelMeter.swift in Sources */,

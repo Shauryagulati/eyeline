@@ -31,6 +31,10 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     }
 
     func windowWillClose(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
+        // Revert to menu-bar-only — but only if the Scripts window isn't still open (see
+        // AppActivation): two policy-flipping windows must not strand each other.
+        if !AppActivation.otherTitledWindowVisible(besides: notification.object as? NSWindow) {
+            NSApp.setActivationPolicy(.accessory)
+        }
     }
 }
