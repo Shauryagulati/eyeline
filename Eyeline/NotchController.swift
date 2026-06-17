@@ -78,11 +78,11 @@ final class NotchController: NSObject {
         return isVisible
     }
 
-    /// Lower the panel off the screen-saver level while a configuration window (Settings, Scripts)
-    /// is open, so the always-on-top panel can't cover that window; restore it when the last such
-    /// window closes. The panel stays on screen throughout, so live preview keeps updating.
+    /// Drop the panel to the normal window level while a configuration window (Settings, Scripts)
+    /// is open, so the floating panel can't cover that window; restore it to floating when the last
+    /// such window closes. The panel stays on screen throughout, so live preview keeps updating.
     func setOverlayElevated(_ elevated: Bool) {
-        panel.level = elevated ? .screenSaver : .normal
+        panel.level = elevated ? .floating : .normal
     }
 
     /// Apply a new scroll speed live — to the active driver and to any future driver.

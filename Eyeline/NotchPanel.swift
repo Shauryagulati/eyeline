@@ -14,7 +14,11 @@ final class NotchPanel: NSPanel {
             backing: .buffered, defer: false)
 
         isFloatingPanel = true
-        level = .screenSaver
+        // Float above ordinary windows so the script stays readable while you work, but BELOW
+        // pop-up menus and the menu bar (those live at .popUpMenu/.statusBar) so our own status-bar
+        // menu can open in front of the card instead of behind it. A notch-docked panel never needs
+        // to clear full-screen content — the notch area auto-hides in full screen anyway.
+        level = .floating
         collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
         isOpaque = false
         backgroundColor = .clear

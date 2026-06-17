@@ -38,6 +38,12 @@ struct TeleprompterView: View {
         model.contentHeight > 0 ? min(CGFloat(model.offset), maxOffset) : CGFloat(model.offset)
     }
 
+    /// True once the script has scrolled to (or past) its end — the conclusion is fully in view.
+    /// Drives both hiding the play affordance and keeping the final lines at full opacity.
+    private var atEnd: Bool {
+        model.contentHeight > 0 && displayOffset >= maxOffset
+    }
+
     /// Squared top edge so the card sits flush against the notch; only the bottom corners round.
     private var cardShape: UnevenRoundedRectangle {
         UnevenRoundedRectangle(
@@ -55,8 +61,10 @@ struct TeleprompterView: View {
             scrollingText
                 .mask { edgeFade }                 // lines dissolve at the top/bottom edges
 
-            // Paused affordance — shown only when there is actually something to scroll.
-            if !model.isPlaying && maxOffset > 0 {
+            // Paused affordance — shown when there's something to scroll AND we haven't reached the
+            // end. At the end it would just cover the final lines you're still reading; the whole
+            // panel stays tappable, so a tap there restarts from the top.
+            if !model.isPlaying && maxOffset > 0 && !atEnd {
                 Image(systemName: "play.fill")
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.white.opacity(0.95))
@@ -96,7 +104,9 @@ struct TeleprompterView: View {
             )
             .offset(y: inset - displayOffset)              // scrolls upward as offset grows
             .frame(width: size.width, height: size.height, alignment: .top)
-            .opacity(model.isPlaying ? 1 : 0.55)
+            // Dim only while paused mid-script; full brightness while playing AND once finished, so
+            // you can clearly read the closing lines instead of squinting at dimmed text.
+            .opacity(model.isPlaying || atEnd ? 1 : 0.55)
             .clipped()
     }
 
