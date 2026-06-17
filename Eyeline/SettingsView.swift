@@ -1,5 +1,6 @@
 import SwiftUI
 import EyelineKit
+import KeyboardShortcuts
 
 struct SettingsView: View {
     @ObservedObject var model: SettingsViewModel
@@ -29,6 +30,12 @@ struct SettingsView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+            }
+
+            Section("Shortcuts") {
+                KeyboardShortcuts.Recorder("Play / Pause:", name: .togglePlay)
+                KeyboardShortcuts.Recorder("Restart:", name: .restart)
+                KeyboardShortcuts.Recorder("Hide / Show:", name: .toggleHidden)
             }
         }
         .formStyle(.grouped)

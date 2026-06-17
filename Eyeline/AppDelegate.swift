@@ -1,5 +1,6 @@
 import AppKit
 import EyelineKit
+import KeyboardShortcuts
 
 // Every AppKit app-delegate callback (and our menu actions) runs on the main thread, so
 // isolate the whole delegate to the main actor. This lets the @objc menu handlers call
@@ -44,6 +45,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         setUpStatusItem()
         notch.show()
+
+        KeyboardShortcuts.onKeyUp(for: .togglePlay) { [weak self] in self?.notch.togglePlay() }
+        KeyboardShortcuts.onKeyUp(for: .restart) { [weak self] in self?.notch.restart() }
+        KeyboardShortcuts.onKeyUp(for: .toggleHidden) { [weak self] in self?.toggleHidden() }
     }
 
     private func setUpStatusItem() {
