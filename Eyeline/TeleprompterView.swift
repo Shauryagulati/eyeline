@@ -44,6 +44,12 @@ struct TeleprompterView: View {
         model.contentHeight > 0 && displayOffset >= maxOffset
     }
 
+    /// True when there are no words to read — a blank/whitespace body, or every script deleted.
+    /// Drives the first-run hint so an empty card isn't a silent dead end.
+    private var isEmptyScript: Bool {
+        model.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     /// Squared top edge so the card sits flush against the notch; only the bottom corners round.
     private var cardShape: UnevenRoundedRectangle {
         UnevenRoundedRectangle(
@@ -60,6 +66,11 @@ struct TeleprompterView: View {
 
             scrollingText
                 .mask { edgeFade }                 // lines dissolve at the top/bottom edges
+
+            // First-run / empty state — points the user at the Scripts window instead of a black void.
+            if isEmptyScript {
+                emptyHint
+            }
 
             // Paused affordance — shown when there's something to scroll AND we haven't reached the
             // end. At the end it would just cover the final lines you're still reading; the whole
@@ -81,6 +92,7 @@ struct TeleprompterView: View {
             model.contentHeight = height
         }
         .animation(.easeInOut(duration: 0.2), value: model.isPlaying)
+        .animation(.easeInOut(duration: 0.2), value: isEmptyScript)
         // Match the window-frame animation in NotchController.setWidth so the card's content and
         // its window grow in lockstep; font changes ease rather than snap.
         .animation(.easeInOut(duration: 0.18), value: model.width)
@@ -108,6 +120,25 @@ struct TeleprompterView: View {
             // you can clearly read the closing lines instead of squinting at dimmed text.
             .opacity(model.isPlaying || atEnd ? 1 : 0.55)
             .clipped()
+    }
+
+    /// Shown when the card has no words yet. Deliberately quiet — it reads as a gentle placeholder,
+    /// not a control — and names the exact menu item ("Scripts…") so a first-run user knows where
+    /// the app actually lives (it's menu-bar-only, with no Dock presence by default).
+    private var emptyHint: some View {
+        VStack(spacing: 5) {
+            Image(systemName: "square.and.pencil")
+                .font(.system(size: 18, weight: .medium))
+            Text("Your script goes here")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+            Text("Add one in Scripts… from the menu bar")
+                .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                .foregroundStyle(.white.opacity(0.5))
+        }
+        .foregroundStyle(.white.opacity(0.7))
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, inset)
+        .transition(.opacity)
     }
 
     /// Soft fade occupying the top/bottom breathing room, so text appears and dissolves at the
