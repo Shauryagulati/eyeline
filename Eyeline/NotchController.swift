@@ -26,6 +26,12 @@ final class NotchController: NSObject {
     /// True only while a blocking alert (e.g. the mic-permission prompt) is on screen, so global
     /// hotkeys delivered into the modal run loop don't mutate scroll state behind the alert.
     private var isPresentingModal = false
+    /// Voice mode: where the recognized word sits in the card, as a fraction of the readable height
+    /// from the top. Kept well above 0.5 (centered) so the lines you're about to speak stay visible
+    /// below it — recognition lags your voice by a word or two, so your eyes are reading into that
+    /// look-ahead zone. Centering hid the next line (worse after a blank line), stalling following.
+    /// Phase D tunable on real hardware.
+    private let voiceReadingLineFraction = 0.3
 
     override init() {
         viewModel = TeleprompterViewModel()
@@ -267,7 +273,8 @@ final class NotchController: NSObject {
     }
 
     /// Geometry bridge (Voice mode): convert the aligner's progress (0…1 by character) into a
-    /// target scroll offset that centers the spoken word, and hand it to the voice driver to glide
+    /// target scroll offset that places the spoken word in the upper part of the card — leaving the
+    /// lines you're about to speak visible below it — and hand it to the voice driver to glide
     /// toward. Inert until the content has been measured, so it never divides by zero.
     private func updateVoiceTarget() {
         guard let voiceDriver, let aligner else { return }
@@ -276,7 +283,8 @@ final class NotchController: NSObject {
         let visible = Double(PanelMetrics.height - PanelMetrics.textInset * 2)
         let wordY = aligner.progressFraction * contentHeight
         let maxOffset = ScrollBounds.maxOffset(contentHeight: contentHeight, visibleHeight: visible)
-        let target = min(max(wordY - visible / 2, 0), maxOffset)
+        let readingLine = visible * voiceReadingLineFraction
+        let target = min(max(wordY - readingLine, 0), maxOffset)
         voiceDriver.setTarget(target)
     }
 
