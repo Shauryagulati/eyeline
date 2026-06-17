@@ -7,7 +7,9 @@ import SwiftUI
 final class NotchPanel: NSPanel {
     init(rootView: some View) {
         super.init(
-            contentRect: NSRect(origin: .zero, size: PanelMetrics.size),
+            contentRect: NSRect(
+                origin: .zero,
+                size: NSSize(width: PanelMetrics.defaultWidth, height: PanelMetrics.height)),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered, defer: false)
 

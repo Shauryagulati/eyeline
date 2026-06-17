@@ -6,17 +6,16 @@ import EyelineKit
 // Swift 6 Sendable-capture errors from a closure-based timer.
 @MainActor
 final class NotchController: NSObject {
-    /// Default scroll speed (points/second) for both timed and voice-gated scrolling.
-    /// Lowered from 60 → reading pace; a live speed control lands in the customization pass.
-    private static let defaultSpeed: Double = 30
-
     private let viewModel: TeleprompterViewModel
     private let panel: NotchPanel
-    private var driver: ScrollDriver = TimedScrollDriver(pointsPerSecond: NotchController.defaultSpeed)
+    private var driver: ScrollDriver = TimedScrollDriver(pointsPerSecond: Settings.defaults.speed)
     private var amplitudeDriver: AmplitudeScrollDriver?
     private var voiceGated = false
     private let meter = MicLevelMeter()
-    private let panelSize = PanelMetrics.size
+    /// Live panel width + scroll speed — seeded from the defaults, overwritten by Settings on launch
+    /// and by the live apply methods below.
+    private var currentWidth: CGFloat = PanelMetrics.defaultWidth
+    private var currentSpeed: Double = Settings.defaults.speed
     private var timer: Timer?
     private var isVisible = true
 
@@ -71,17 +70,36 @@ final class NotchController: NSObject {
         return isVisible
     }
 
+    /// Apply a new scroll speed live — to the active driver and to any future driver.
+    func setSpeed(_ pointsPerSecond: Double) {
+        currentSpeed = pointsPerSecond
+        (driver as? TimedScrollDriver)?.pointsPerSecond = pointsPerSecond
+        amplitudeDriver?.pointsPerSecond = pointsPerSecond
+    }
+
+    /// Apply a new script font size. The view re-measures content height automatically.
+    func setFontSize(_ points: Double) {
+        viewModel.fontSize = CGFloat(points)
+    }
+
+    /// Apply a new panel width: resize + re-pin under the notch.
+    func setWidth(_ points: Double) {
+        currentWidth = CGFloat(points)
+        viewModel.width = CGFloat(points)
+        repositionForActiveScreen()
+    }
+
     /// Switch between timed and voice-gated scrolling. Stops playback and returns to the top.
     func setVoiceGated(_ on: Bool) {
         pausePlayback()
         voiceGated = on
         if on {
-            let d = AmplitudeScrollDriver(pointsPerSecond: NotchController.defaultSpeed)
+            let d = AmplitudeScrollDriver(pointsPerSecond: currentSpeed)
             amplitudeDriver = d
             driver = d
         } else {
             amplitudeDriver = nil
-            driver = TimedScrollDriver(pointsPerSecond: NotchController.defaultSpeed)
+            driver = TimedScrollDriver(pointsPerSecond: currentSpeed)
         }
         viewModel.offset = 0
     }
@@ -184,7 +202,7 @@ final class NotchController: NSObject {
     /// True once the script has scrolled far enough that the remainder fits the visible area.
     /// Guards on a measured height so a not-yet-laid-out script never reads as "ended".
     private var isAtEnd: Bool {
-        let visible = Double(panelSize.height - PanelMetrics.textInset * 2)
+        let visible = Double(PanelMetrics.height - PanelMetrics.textInset * 2)
         let limit = ScrollBounds.maxOffset(
             contentHeight: Double(viewModel.contentHeight), visibleHeight: visible)
         return viewModel.contentHeight > 0 && viewModel.offset >= limit
@@ -206,7 +224,7 @@ final class NotchController: NSObject {
         let frame = NotchGeometry.panelFrame(
             screenFrame: screen.frame,
             topInset: topInset,
-            size: panelSize)
+            size: CGSize(width: currentWidth, height: PanelMetrics.height))
         panel.setFrame(frame, display: true)
     }
 }

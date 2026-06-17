@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hideItem: NSMenuItem!
     private var scriptLibrary: ScriptLibraryViewModel!
     private var scriptsWindow: ScriptsWindowController!
+    private var settingsStore: SettingsStore!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         notch = NotchController()
@@ -24,6 +25,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notch.setText(library.selectedScript?.body ?? "")
         self.scriptLibrary = library
         self.scriptsWindow = ScriptsWindowController(model: library)
+
+        let settingsStore = SettingsStore(persistence: UserDefaultsSettingsPersistence())
+        self.settingsStore = settingsStore
+        let s = settingsStore.settings
+        notch.setSpeed(s.speed)
+        notch.setFontSize(s.fontSize)
+        notch.setWidth(s.widthPreset.points)
 
         setUpStatusItem()
         notch.show()

@@ -8,6 +8,10 @@ final class TeleprompterViewModel: ObservableObject {
     @Published var isPlaying: Bool = false
     /// Measured height of the rendered script, reported up from the view's layout.
     @Published var contentHeight: CGFloat = 0
+    /// Live panel width (driven by the WidthPreset setting).
+    @Published var width: CGFloat = PanelMetrics.defaultWidth
+    /// Live script font size in points (driven by the font-size setting).
+    @Published var fontSize: CGFloat = CGFloat(Settings.defaults.fontSize)
     /// Invoked when the user taps the panel. Wired to `NotchController.togglePlay`.
     var onTogglePlay: (() -> Void)?
 }
@@ -15,9 +19,10 @@ final class TeleprompterViewModel: ObservableObject {
 struct TeleprompterView: View {
     @ObservedObject var model: TeleprompterViewModel
 
-    private let size = PanelMetrics.size
     private let inset = PanelMetrics.textInset
     private let corner = PanelMetrics.cornerRadius
+    /// Recomputed whenever the model publishes a new width.
+    private var size: CGSize { CGSize(width: model.width, height: PanelMetrics.height) }
 
     /// Readable area = panel height minus top + bottom breathing room.
     private var visibleHeight: CGFloat { size.height - inset * 2 }
@@ -74,7 +79,7 @@ struct TeleprompterView: View {
     /// window. The fixed `.frame` is what keeps the card from resizing around the tall text.
     private var scrollingText: some View {
         Text(model.text)
-            .font(.system(size: 22, weight: .semibold, design: .rounded))
+            .font(.system(size: model.fontSize, weight: .semibold, design: .rounded))
             .foregroundStyle(.white)
             .multilineTextAlignment(.center)
             .lineSpacing(6)
