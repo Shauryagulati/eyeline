@@ -73,6 +73,10 @@ struct TeleprompterView: View {
             model.contentHeight = height
         }
         .animation(.easeInOut(duration: 0.2), value: model.isPlaying)
+        // Match the window-frame animation in NotchController.setWidth so the card's content and
+        // its window grow in lockstep; font changes ease rather than snap.
+        .animation(.easeInOut(duration: 0.18), value: model.width)
+        .animation(.easeInOut(duration: 0.18), value: model.fontSize)
     }
 
     /// The script laid out at its FULL height, then scrolled within a fixed, top-pinned, clipped

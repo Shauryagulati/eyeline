@@ -18,6 +18,9 @@ final class NotchController: NSObject {
     private var currentSpeed: Double = Settings.defaults.speed
     private var timer: Timer?
     private var isVisible = true
+    /// True only while a blocking alert (e.g. the mic-permission prompt) is on screen, so global
+    /// hotkeys delivered into the modal run loop don't mutate scroll state behind the alert.
+    private var isPresentingModal = false
 
     override init() {
         viewModel = TeleprompterViewModel()
@@ -70,6 +73,13 @@ final class NotchController: NSObject {
         return isVisible
     }
 
+    /// Lower the panel off the screen-saver level while a configuration window (Settings, Scripts)
+    /// is open, so the always-on-top panel can't cover that window; restore it when the last such
+    /// window closes. The panel stays on screen throughout, so live preview keeps updating.
+    func setOverlayElevated(_ elevated: Bool) {
+        panel.level = elevated ? .screenSaver : .normal
+    }
+
     /// Apply a new scroll speed live — to the active driver and to any future driver.
     func setSpeed(_ pointsPerSecond: Double) {
         currentSpeed = pointsPerSecond
@@ -82,11 +92,12 @@ final class NotchController: NSObject {
         viewModel.fontSize = CGFloat(points)
     }
 
-    /// Apply a new panel width: resize + re-pin under the notch.
+    /// Apply a new panel width: resize + re-pin under the notch. Animated because this is a
+    /// user-initiated change from Settings — a snap would feel jarring, an eased grow feels native.
     func setWidth(_ points: Double) {
         currentWidth = CGFloat(points)
         viewModel.width = CGFloat(points)
-        repositionForActiveScreen()
+        repositionForActiveScreen(animated: true)
     }
 
     /// Switch between timed and voice-gated scrolling. Stops playback and returns to the top.
@@ -105,6 +116,10 @@ final class NotchController: NSObject {
     }
 
     func togglePlay() {
+        guard !isPresentingModal else { return }
+        // A hotkey can arrive while the panel is hidden — reveal it so the user sees the result
+        // of the command they just issued rather than nothing happening.
+        if !isVisible { reveal() }
         if driver.isPlaying {
             pausePlayback()
             return
@@ -155,6 +170,8 @@ final class NotchController: NSObject {
         message: String = "Eyeline needs microphone access to scroll with your voice. "
             + "Enable it in System Settings ▸ Privacy & Security ▸ Microphone."
     ) {
+        isPresentingModal = true
+        defer { isPresentingModal = false }
         let alert = NSAlert()
         alert.messageText = "Microphone access needed"
         alert.informativeText = message
@@ -163,6 +180,8 @@ final class NotchController: NSObject {
     }
 
     func restart() {
+        guard !isPresentingModal else { return }
+        if !isVisible { reveal() }
         driver.reset()
         viewModel.offset = 0
     }
@@ -211,7 +230,9 @@ final class NotchController: NSObject {
     // MARK: Positioning
 
     /// Pin the panel under the notch of the notched display, falling back to main.
-    private func repositionForActiveScreen() {
+    /// `animated` is true only for user-initiated width changes; screen reconfigure / wake re-pin
+    /// instantly so the panel never appears to drift after a display change.
+    private func repositionForActiveScreen(animated: Bool = false) {
         let notched = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 })
         guard let screen = notched ?? NSScreen.main else { return }
         // On a notched display, safeAreaInsets.top spans the menu bar + notch, so the
@@ -225,6 +246,14 @@ final class NotchController: NSObject {
             screenFrame: screen.frame,
             topInset: topInset,
             size: CGSize(width: currentWidth, height: PanelMetrics.height))
-        panel.setFrame(frame, display: true)
+        if animated {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.18
+                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                panel.animator().setFrame(frame, display: true)
+            }
+        } else {
+            panel.setFrame(frame, display: true)
+        }
     }
 }

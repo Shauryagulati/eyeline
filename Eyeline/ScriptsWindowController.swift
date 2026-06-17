@@ -8,9 +8,11 @@ import SwiftUI
 final class ScriptsWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private let model: ScriptLibraryViewModel
+    private let notch: NotchController
 
-    init(model: ScriptLibraryViewModel) {
+    init(model: ScriptLibraryViewModel, notch: NotchController) {
         self.model = model
+        self.notch = notch
         super.init()
     }
 
@@ -28,6 +30,8 @@ final class ScriptsWindowController: NSObject, NSWindowDelegate {
         }
         // Become a regular app so the editor's TextField/TextEditor accept keyboard input.
         NSApp.setActivationPolicy(.regular)
+        // Drop the always-on-top notch panel below this window so it can't cover the editor.
+        notch.setOverlayElevated(false)
         NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
     }
@@ -38,6 +42,7 @@ final class ScriptsWindowController: NSObject, NSWindowDelegate {
         // still on screen must not strand it under .accessory (no Dock icon, can't become key).
         if !AppActivation.otherTitledWindowVisible(besides: notification.object as? NSWindow) {
             NSApp.setActivationPolicy(.accessory)
+            notch.setOverlayElevated(true)   // restore always-on-top once no config window remains
         }
     }
 }

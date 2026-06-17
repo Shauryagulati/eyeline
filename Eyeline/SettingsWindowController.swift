@@ -8,9 +8,11 @@ import SwiftUI
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private let model: SettingsViewModel
+    private let notch: NotchController
 
-    init(model: SettingsViewModel) {
+    init(model: SettingsViewModel, notch: NotchController) {
         self.model = model
+        self.notch = notch
         super.init()
     }
 
@@ -26,6 +28,9 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             window = win
         }
         NSApp.setActivationPolicy(.regular)
+        // Drop the always-on-top notch panel below this window so the user can see the settings
+        // (the panel sits at the notch, exactly where this window centers).
+        notch.setOverlayElevated(false)
         NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
     }
@@ -35,6 +40,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         // AppActivation): two policy-flipping windows must not strand each other.
         if !AppActivation.otherTitledWindowVisible(besides: notification.object as? NSWindow) {
             NSApp.setActivationPolicy(.accessory)
+            notch.setOverlayElevated(true)   // restore always-on-top once no config window remains
         }
     }
 }

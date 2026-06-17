@@ -27,7 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         notch.setText(library.selectedScript?.body ?? "")
         self.scriptLibrary = library
-        self.scriptsWindow = ScriptsWindowController(model: library)
+        self.scriptsWindow = ScriptsWindowController(model: library, notch: notch)
 
         let settingsStore = SettingsStore(persistence: UserDefaultsSettingsPersistence())
         self.settingsStore = settingsStore
@@ -41,14 +41,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsVM.onFontSizeChange = { [weak notch] in notch?.setFontSize($0) }
         settingsVM.onWidthChange = { [weak notch] in notch?.setWidth($0) }
         self.settingsViewModel = settingsVM
-        self.settingsWindow = SettingsWindowController(model: settingsVM)
+        self.settingsWindow = SettingsWindowController(model: settingsVM, notch: notch)
 
         setUpStatusItem()
         notch.show()
 
+        seedDefaultShortcutsIfNeeded()
         KeyboardShortcuts.onKeyUp(for: .togglePlay) { [weak self] in self?.notch.togglePlay() }
         KeyboardShortcuts.onKeyUp(for: .restart) { [weak self] in self?.notch.restart() }
         KeyboardShortcuts.onKeyUp(for: .toggleHidden) { [weak self] in self?.toggleHidden() }
+    }
+
+    /// On first launch only, give the three commands sensible default global hotkeys so the app is
+    /// useful out of the box (⌃⌥P play/pause, ⌃⌥R restart, ⌃⌥H hide/show). Gated by a UserDefaults
+    /// flag so we never re-seed — and each binding is only filled if the user hasn't set their own,
+    /// so we can't clobber a customization. ⌃⌥H makes "hide before Mission Control" one keystroke.
+    private func seedDefaultShortcutsIfNeeded() {
+        let seededKey = "eyeline.didSeedShortcuts"
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: seededKey) else { return }
+
+        if KeyboardShortcuts.getShortcut(for: .togglePlay) == nil {
+            KeyboardShortcuts.setShortcut(.init(.p, modifiers: [.control, .option]), for: .togglePlay)
+        }
+        if KeyboardShortcuts.getShortcut(for: .restart) == nil {
+            KeyboardShortcuts.setShortcut(.init(.r, modifiers: [.control, .option]), for: .restart)
+        }
+        if KeyboardShortcuts.getShortcut(for: .toggleHidden) == nil {
+            KeyboardShortcuts.setShortcut(.init(.h, modifiers: [.control, .option]), for: .toggleHidden)
+        }
+        defaults.set(true, forKey: seededKey)
     }
 
     private func setUpStatusItem() {
