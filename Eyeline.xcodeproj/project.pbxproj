@@ -13,15 +13,19 @@
 		465208962B94EA4E31B04078 /* EyelineKit in Frameworks */ = {isa = PBXBuildFile; productRef = 05A627A608E04B15BC5E2DD4 /* EyelineKit */; };
 		4F4D2A13561EEE3192DD4920 /* MicLevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */; };
 		9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E207A5ED0C550289A9717D /* EyelineApp.swift */; };
+		9589031EAE9147D39F53E11D /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3B0F9096113F24EE996A59 /* SettingsWindowController.swift */; };
 		9B19F18B14F1FC4D4CBD9A7E /* PanelMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CFD4AAA887C4C00C9D619D8 /* PanelMetrics.swift */; };
 		A00D6E6A169E48BB775BADC4 /* ScriptLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8CBD74FC12E5202DC02050 /* ScriptLibraryViewModel.swift */; };
 		A0F2108F8450B861DCF6FD3F /* MicPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1B11C1BA7CB44AF7D6035E /* MicPermission.swift */; };
 		AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43009D7A794DB98103695D4 /* NotchController.swift */; };
 		AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */; };
+		C71064159BBAA24DA3BA758F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1306AF4E30BD2008C3A15B23 /* SettingsView.swift */; };
 		D22F7EB97F98D33439B641B6 /* ScriptsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */; };
+		E55055F7EB5A7E11684E0A50 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79E75519469342627369F94 /* SettingsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1306AF4E30BD2008C3A15B23 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		19D3F9B00EEAB1E96A87B83A /* NotchPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchPanel.swift; sourceTree = "<group>"; };
 		1EB00E9501BB3A06490F76EB /* TeleprompterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeleprompterView.swift; sourceTree = "<group>"; };
 		1F926B06390EE2A0327070EF /* EyelineKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = EyelineKit; path = EyelineKit; sourceTree = SOURCE_ROOT; };
@@ -31,10 +35,12 @@
 		89F9D7A9DA622341FD4EC247 /* ScriptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsView.swift; sourceTree = "<group>"; };
 		8E8CBD74FC12E5202DC02050 /* ScriptLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptLibraryViewModel.swift; sourceTree = "<group>"; };
 		971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsWindowController.swift; sourceTree = "<group>"; };
+		C79E75519469342627369F94 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		CA1B11C1BA7CB44AF7D6035E /* MicPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicPermission.swift; sourceTree = "<group>"; };
 		E43009D7A794DB98103695D4 /* NotchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchController.swift; sourceTree = "<group>"; };
 		EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicLevelMeter.swift; sourceTree = "<group>"; };
 		F3D8033D307D432FDAD763A8 /* Eyeline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Eyeline.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE3B0F9096113F24EE996A59 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +76,9 @@
 				8E8CBD74FC12E5202DC02050 /* ScriptLibraryViewModel.swift */,
 				89F9D7A9DA622341FD4EC247 /* ScriptsView.swift */,
 				971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */,
+				1306AF4E30BD2008C3A15B23 /* SettingsView.swift */,
+				C79E75519469342627369F94 /* SettingsViewModel.swift */,
+				FE3B0F9096113F24EE996A59 /* SettingsWindowController.swift */,
 				1EB00E9501BB3A06490F76EB /* TeleprompterView.swift */,
 			);
 			path = Eyeline;
@@ -165,6 +174,9 @@
 				A00D6E6A169E48BB775BADC4 /* ScriptLibraryViewModel.swift in Sources */,
 				32362A69BAD4F37092E21341 /* ScriptsView.swift in Sources */,
 				D22F7EB97F98D33439B641B6 /* ScriptsWindowController.swift in Sources */,
+				C71064159BBAA24DA3BA758F /* SettingsView.swift in Sources */,
+				E55055F7EB5A7E11684E0A50 /* SettingsViewModel.swift in Sources */,
+				9589031EAE9147D39F53E11D /* SettingsWindowController.swift in Sources */,
 				18B78C6DC55475AC5D1DF081 /* TeleprompterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -13,6 +13,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var scriptLibrary: ScriptLibraryViewModel!
     private var scriptsWindow: ScriptsWindowController!
     private var settingsStore: SettingsStore!
+    private var settingsViewModel: SettingsViewModel!
+    private var settingsWindow: SettingsWindowController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         notch = NotchController()
@@ -32,6 +34,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notch.setSpeed(s.speed)
         notch.setFontSize(s.fontSize)
         notch.setWidth(s.widthPreset.points)
+
+        let settingsVM = SettingsViewModel(store: settingsStore)
+        settingsVM.onSpeedChange = { [weak notch] in notch?.setSpeed($0) }
+        settingsVM.onFontSizeChange = { [weak notch] in notch?.setFontSize($0) }
+        settingsVM.onWidthChange = { [weak notch] in notch?.setWidth($0) }
+        self.settingsViewModel = settingsVM
+        self.settingsWindow = SettingsWindowController(model: settingsVM)
 
         setUpStatusItem()
         notch.show()
@@ -72,6 +81,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         scriptsItem.target = self
         menu.addItem(scriptsItem)
 
+        let settingsItem = NSMenuItem(
+            title: "Settings…", action: #selector(openSettings), keyEquivalent: "")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(
             title: "Quit Eyeline",
@@ -97,5 +111,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openScripts() {
         scriptsWindow.show()
+    }
+
+    @objc private func openSettings() {
+        settingsWindow.show()
     }
 }
