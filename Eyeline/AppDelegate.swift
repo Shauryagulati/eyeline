@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var notch: NotchController!
     private var voiceItem: NSMenuItem!
+    private var hideItem: NSMenuItem!
     private var scriptLibrary: ScriptLibraryViewModel!
     private var scriptsWindow: ScriptsWindowController!
 
@@ -45,6 +46,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         restartItem.target = self
         menu.addItem(restartItem)
 
+        let hideItem = NSMenuItem(
+            title: "Hide Eyeline", action: #selector(toggleHidden), keyEquivalent: "")
+        hideItem.target = self
+        menu.addItem(hideItem)
+        self.hideItem = hideItem
+
         let voiceItem = NSMenuItem(
             title: "Voice-gated scrolling", action: #selector(toggleVoiceGated), keyEquivalent: "")
         voiceItem.target = self
@@ -68,6 +75,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // panel means there's no key window to anchor the responder chain.
     @objc private func togglePlay() { notch.togglePlay() }
     @objc private func restart() { notch.restart() }
+
+    @objc private func toggleHidden() {
+        let visible = notch.toggleVisible()
+        hideItem.title = visible ? "Hide Eyeline" : "Show Eyeline"
+    }
 
     @objc private func toggleVoiceGated() {
         let on = (voiceItem.state == .off)

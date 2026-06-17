@@ -33,12 +33,22 @@ struct TeleprompterView: View {
         model.contentHeight > 0 ? min(CGFloat(model.offset), maxOffset) : CGFloat(model.offset)
     }
 
+    /// Squared top edge so the card sits flush against the notch; only the bottom corners round.
+    private var cardShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(
+            topLeadingRadius: 0,
+            bottomLeadingRadius: corner,
+            bottomTrailingRadius: corner,
+            topTrailingRadius: 0,
+            style: .continuous)
+    }
+
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: corner, style: .continuous)
-                .fill(.black.opacity(0.85))
+            cardShape.fill(Color.black)            // opaque — reads as an extension of the notch
 
             scrollingText
+                .mask { edgeFade }                 // lines dissolve at the top/bottom edges
 
             // Paused affordance — shown only when there is actually something to scroll.
             if !model.isPlaying && maxOffset > 0 {
@@ -51,7 +61,7 @@ struct TeleprompterView: View {
             }
         }
         .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+        .clipShape(cardShape)
         .contentShape(Rectangle())
         .onTapGesture { model.onTogglePlay?() }
         .onPreferenceChange(ContentHeightKey.self) { height in
@@ -77,8 +87,21 @@ struct TeleprompterView: View {
             )
             .offset(y: inset - displayOffset)              // scrolls upward as offset grows
             .frame(width: size.width, height: size.height, alignment: .top)
-            .opacity(model.isPlaying ? 1 : 0.5)
+            .opacity(model.isPlaying ? 1 : 0.55)
             .clipped()
+    }
+
+    /// Soft fade occupying the top/bottom breathing room, so text appears and dissolves at the
+    /// edges instead of hard-clipping. Fade ends exactly where the first readable line begins.
+    private var edgeFade: some View {
+        LinearGradient(
+            stops: [
+                .init(color: .clear, location: 0.0),
+                .init(color: .black, location: 0.10),
+                .init(color: .black, location: 0.90),
+                .init(color: .clear, location: 1.0),
+            ],
+            startPoint: .top, endPoint: .bottom)
     }
 }
 

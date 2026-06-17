@@ -18,6 +18,7 @@ final class NotchController: NSObject {
     private let meter = MicLevelMeter()
     private let panelSize = PanelMetrics.size
     private var timer: Timer?
+    private var isVisible = true
 
     override init() {
         viewModel = TeleprompterViewModel()
@@ -48,6 +49,26 @@ final class NotchController: NSObject {
                 self?.panel.orderFrontRegardless()
             }
         }
+    }
+
+    /// Hide the panel. Pauses first so it isn't scrolling out of sight.
+    func hide() {
+        pausePlayback()
+        panel.orderOut(nil)
+        isVisible = false
+    }
+
+    /// Re-pin to the active screen and show the panel.
+    func reveal() {
+        repositionForActiveScreen()
+        panel.orderFrontRegardless()
+        isVisible = true
+    }
+
+    /// Toggle panel visibility; returns the new visible state.
+    func toggleVisible() -> Bool {
+        if isVisible { hide() } else { reveal() }
+        return isVisible
     }
 
     /// Switch between timed and voice-gated scrolling. Stops playback and returns to the top.

@@ -16,7 +16,7 @@ final class NotchPanel: NSPanel {
         collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
         isOpaque = false
         backgroundColor = .clear
-        hasShadow = false
+        hasShadow = true                      // opaque card casts a soft system shadow for depth
         ignoresMouseEvents = false            // tappable for play/pause; non-activating keeps focus
         isMovableByWindowBackground = false
 
