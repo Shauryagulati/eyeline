@@ -12,7 +12,8 @@ public final class SettingsStore {
         let loaded = persistence.load()
         // Re-clamp through the validating init in case stored values were out of range.
         self.settings = Settings(
-            speed: loaded.speed, fontSize: loaded.fontSize, widthPreset: loaded.widthPreset)
+            speed: loaded.speed, fontSize: loaded.fontSize,
+            widthPreset: loaded.widthPreset, mode: loaded.mode)
     }
 
     public func setSpeed(_ v: Double) {
@@ -27,6 +28,11 @@ public final class SettingsStore {
 
     public func setWidthPreset(_ preset: WidthPreset) {
         settings.widthPreset = preset
+        persist()
+    }
+
+    public func setMode(_ mode: ScrollMode) {
+        settings.mode = mode
         persist()
     }
 

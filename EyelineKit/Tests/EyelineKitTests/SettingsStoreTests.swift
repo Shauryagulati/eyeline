@@ -46,4 +46,21 @@ struct SettingsStoreTests {
         #expect(store.settings.widthPreset == .ultraWide)
         #expect(backend.load().widthPreset == .ultraWide)
     }
+
+    @Test("setMode persists")
+    func setMode() {
+        let backend = InMemorySettingsPersistence()
+        let store = SettingsStore(persistence: backend)
+        store.setMode(.voice)
+        #expect(store.settings.mode == .voice)
+        #expect(backend.load().mode == .voice)
+    }
+
+    @Test("a persisted mode survives the load re-clamp")
+    func modeSurvivesLoad() {
+        // Regression: the load re-clamp must carry `mode` through, not silently reset it to .timed.
+        let backend = InMemorySettingsPersistence(settings: Settings(mode: .loudness))
+        let store = SettingsStore(persistence: backend)
+        #expect(store.settings.mode == .loudness)
+    }
 }

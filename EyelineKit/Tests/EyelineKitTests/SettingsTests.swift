@@ -49,4 +49,42 @@ struct SettingsTests {
         let decoded = try JSONDecoder().decode(Settings.self, from: data)
         #expect(decoded == original)
     }
+
+    @Test("default scroll mode is timed")
+    func defaultMode() {
+        #expect(Settings.defaults.mode == .timed)
+    }
+
+    @Test("every scroll mode has a non-empty label and is enumerable")
+    func modeLabels() {
+        #expect(ScrollMode.allCases.count == 3)
+        #expect(ScrollMode.allCases.allSatisfy { !$0.label.isEmpty })
+    }
+
+    @Test("decoding a pre-modes blob defaults mode to timed without wiping other fields")
+    func decodeMissingModeDefaultsTimed() throws {
+        // An older persisted blob from before scroll modes existed (no "mode" key).
+        let json = Data(#"{"speed":42,"fontSize":28,"widthPreset":"wide"}"#.utf8)
+        let decoded = try JSONDecoder().decode(Settings.self, from: json)
+        #expect(decoded.mode == .timed)
+        #expect(decoded.speed == 42)        // other fields preserved, not reset
+        #expect(decoded.fontSize == 28)
+        #expect(decoded.widthPreset == .wide)
+    }
+
+    @Test("decoding an unknown mode raw value falls back to timed")
+    func decodeUnknownModeDefaultsTimed() throws {
+        let json = Data(#"{"speed":30,"fontSize":22,"widthPreset":"standard","mode":"telepathy"}"#.utf8)
+        let decoded = try JSONDecoder().decode(Settings.self, from: json)
+        #expect(decoded.mode == .timed)
+    }
+
+    @Test("settings round-trips the scroll mode through Codable")
+    func modeCodable() throws {
+        let original = Settings(speed: 30, fontSize: 22, widthPreset: .standard, mode: .voice)
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(Settings.self, from: data)
+        #expect(decoded.mode == .voice)
+        #expect(decoded == original)
+    }
 }
