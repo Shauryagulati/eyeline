@@ -57,6 +57,17 @@ struct TimedScrollDriverTests {
         #expect(driver.offset == 0)
     }
 
+    @Test("seek sets the offset and continues from there")
+    func seekContinues() {
+        let driver = TimedScrollDriver(pointsPerSecond: 100)
+        driver.seek(to: 250)
+        #expect(driver.offset == 250)
+        driver.play()
+        driver.advance(to: 0)   // baseline (seek cleared the clock)
+        driver.advance(to: 1)   // +100
+        #expect(driver.offset == 350)
+    }
+
     @Test("speed change applies to subsequent ticks only")
     func speedChangeAppliesGoingForward() {
         let driver = TimedScrollDriver(pointsPerSecond: 100)

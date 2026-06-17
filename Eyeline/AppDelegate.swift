@@ -9,7 +9,6 @@ import KeyboardShortcuts
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var notch: NotchController!
-    private var voiceItem: NSMenuItem!
     private var hideItem: NSMenuItem!
     private var scriptLibrary: ScriptLibraryViewModel!
     private var scriptsWindow: ScriptsWindowController!
@@ -40,8 +39,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsVM.onSpeedChange = { [weak notch] in notch?.setSpeed($0) }
         settingsVM.onFontSizeChange = { [weak notch] in notch?.setFontSize($0) }
         settingsVM.onWidthChange = { [weak notch] in notch?.setWidth($0) }
+        settingsVM.onModeChange = { [weak notch] newMode, confirm in
+            guard let notch else { confirm(false); return }
+            notch.applyMode(newMode, completion: confirm)
+        }
         self.settingsViewModel = settingsVM
         self.settingsWindow = SettingsWindowController(model: settingsVM, notch: notch)
+
+        // Restore the last-used scroll mode silently (first play acquires any permissions). After
+        // setText above, so Voice mode tokenizes the right script.
+        notch.restoreMode(s.mode)
 
         setUpStatusItem()
         notch.show()
@@ -96,13 +103,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(hideItem)
         self.hideItem = hideItem
 
-        let voiceItem = NSMenuItem(
-            title: "Voice-gated scrolling", action: #selector(toggleVoiceGated), keyEquivalent: "")
-        voiceItem.target = self
-        voiceItem.state = .off
-        menu.addItem(voiceItem)
-        self.voiceItem = voiceItem
-
         let scriptsItem = NSMenuItem(
             title: "Scripts…", action: #selector(openScripts), keyEquivalent: "")
         scriptsItem.target = self
@@ -128,12 +128,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func toggleHidden() {
         let visible = notch.toggleVisible()
         hideItem.title = visible ? "Hide Eyeline" : "Show Eyeline"
-    }
-
-    @objc private func toggleVoiceGated() {
-        let on = (voiceItem.state == .off)
-        voiceItem.state = on ? .on : .off
-        notch.setVoiceGated(on)
     }
 
     @objc private func openScripts() {

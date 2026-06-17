@@ -98,6 +98,17 @@ struct VoiceFollowScrollDriverTests {
         #expect(d.offset == 0)
     }
 
+    @Test("seek sets the offset and target so it rests there")
+    func seekRests() {
+        let d = VoiceFollowScrollDriver(tau: 0.25, maxCatchUpPointsPerSecond: 100_000)
+        d.seek(to: 200)
+        #expect(d.offset == 200)
+        d.play()
+        d.advance(to: 0)
+        for i in 1...50 { d.advance(to: Double(i) * 0.1) }   // no new target → stays at 200
+        #expect(abs(d.offset - 200) < 1e-9)
+    }
+
     @Test("the first tick after play only baselines the clock")
     func firstTickBaselines() {
         let d = VoiceFollowScrollDriver(tau: 0.25, maxCatchUpPointsPerSecond: 100_000)

@@ -10,8 +10,13 @@ final class NotchController: NSObject {
     private let panel: NotchPanel
     private var driver: ScrollDriver = TimedScrollDriver(pointsPerSecond: Settings.defaults.speed)
     private var amplitudeDriver: AmplitudeScrollDriver?
-    private var voiceGated = false
+    private var voiceDriver: VoiceFollowScrollDriver?
+    private var mode: ScrollMode = .timed
     private let meter = MicLevelMeter()
+    /// Voice mode only: on-device recognizer + the pure aligner that maps recognized words to a
+    /// position in the script. Nil in other modes.
+    private var speechSource: SFSpeechSource?
+    private var aligner: ScriptAligner?
     /// Live panel width + scroll speed — seeded from the defaults, overwritten by Settings on launch
     /// and by the live apply methods below.
     private var currentWidth: CGFloat = PanelMetrics.defaultWidth
@@ -100,19 +105,88 @@ final class NotchController: NSObject {
         repositionForActiveScreen(animated: true)
     }
 
-    /// Switch between timed and voice-gated scrolling. Stops playback and returns to the top.
-    func setVoiceGated(_ on: Bool) {
+    /// Switch the scroll mode from Settings. For Loudness/Voice this secures the required
+    /// permissions *first* and commits the mode only on success — so the Settings picker never
+    /// shows a mode "active" that can't actually run (M2). `completion(true)` means the mode took;
+    /// `false` means it was rejected and the prior mode still stands. Switching never resets the
+    /// scroll position (M3).
+    func applyMode(_ newMode: ScrollMode, completion: @escaping (Bool) -> Void) {
+        switch newMode {
+        case .timed:
+            commitMode(.timed)
+            completion(true)
+
+        case .loudness:
+            MicPermission.ensureAccess { granted in
+                Task { @MainActor in
+                    if granted {
+                        self.commitMode(.loudness)
+                        completion(true)
+                    } else {
+                        self.presentMicDeniedAlert()
+                        completion(false)
+                    }
+                }
+            }
+
+        case .voice:
+            // Voice needs BOTH microphone access and on-device speech recognition.
+            MicPermission.ensureAccess { micGranted in
+                Task { @MainActor in
+                    guard micGranted else {
+                        self.presentMicDeniedAlert()
+                        completion(false)
+                        return
+                    }
+                    SpeechPermission.ensureOnDeviceAccess { availability in
+                        Task { @MainActor in
+                            guard availability == .available else {
+                                self.presentSpeechUnavailableAlert(availability)
+                                completion(false)
+                                return
+                            }
+                            self.commitMode(.voice)
+                            completion(true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Restore the persisted mode at launch *without* prompting — first play acquires permissions.
+    /// A menu-bar app shouldn't throw a permission dialog before the user has done anything.
+    func restoreMode(_ mode: ScrollMode) {
+        commitMode(mode)
+    }
+
+    /// Tear down the old mode's resources and install the new mode's driver, preserving the current
+    /// scroll position (M3 — only `restart()`/`setText()` return to the top).
+    private func commitMode(_ newMode: ScrollMode) {
         pausePlayback()
-        voiceGated = on
-        if on {
+        let position = viewModel.offset
+        amplitudeDriver = nil
+        voiceDriver = nil
+        aligner = nil
+        speechSource = nil
+
+        switch newMode {
+        case .timed:
+            driver = TimedScrollDriver(pointsPerSecond: currentSpeed)
+        case .loudness:
             let d = AmplitudeScrollDriver(pointsPerSecond: currentSpeed)
             amplitudeDriver = d
             driver = d
-        } else {
-            amplitudeDriver = nil
-            driver = TimedScrollDriver(pointsPerSecond: currentSpeed)
+        case .voice:
+            let d = VoiceFollowScrollDriver()
+            voiceDriver = d
+            driver = d
+            aligner = ScriptAligner(script: viewModel.text)
+            speechSource = SFSpeechSource()
         }
-        viewModel.offset = 0
+
+        driver.seek(to: position)   // keep the current scroll position across the switch (M3)
+        mode = newMode
     }
 
     func togglePlay() {
@@ -128,42 +202,82 @@ final class NotchController: NSObject {
         if isAtEnd {
             driver.reset()
             viewModel.offset = 0
+            aligner?.reset()
         }
-        if voiceGated {
-            MicPermission.ensureAccess { granted in
-                Task { @MainActor in
-                    guard granted else { self.presentMicDeniedAlert(); return }
-                    self.startVoiceGatedPlayback()
-                }
+        startPlayback()
+    }
+
+    /// Begin scrolling in the current mode. Permissions were secured when the mode was chosen
+    /// (applyMode), so this just spins up the audio pipeline the mode needs and starts the loop.
+    private func startPlayback() {
+        switch mode {
+        case .timed:
+            beginScrollLoop()
+
+        case .loudness:
+            meter.onLevel = { [weak self] level in self?.amplitudeDriver?.ingest(level: level) }
+            do {
+                try meter.start()
+            } catch {
+                presentMicDeniedAlert(
+                    message: "Couldn't start the microphone: \(error.localizedDescription)")
+                return
             }
-        } else {
-            driver.play()
-            viewModel.isPlaying = true
-            startTimer()
+            beginScrollLoop()
+
+        case .voice:
+            guard let speechSource else {
+                presentSpeechUnavailableAlert(.unavailable)
+                return
+            }
+            speechSource.onWords = { [weak self] words in
+                guard let self, let aligner = self.aligner else { return }
+                aligner.ingest(recentWords: words)
+                self.updateVoiceTarget()
+            }
+            // If the recognizer gives up (e.g. permission revoked since launch), stop cleanly.
+            speechSource.onUnavailable = { [weak self] in
+                guard let self else { return }
+                self.pausePlayback()
+                self.presentSpeechUnavailableAlert(.unavailable)
+            }
+            do {
+                try speechSource.start()
+            } catch {
+                presentSpeechUnavailableAlert(.unavailable)
+                return
+            }
+            beginScrollLoop()
         }
     }
 
-    /// Single pause path — stops the driver, the scroll loop, the mic, and clears the play state.
+    private func beginScrollLoop() {
+        driver.play()
+        viewModel.isPlaying = true
+        startTimer()
+    }
+
+    /// Single pause path — stops the driver, the scroll loop, all audio inputs, and the play state.
     private func pausePlayback() {
         driver.pause()
         stopTimer()
         meter.stop()
+        speechSource?.stop()
         viewModel.isPlaying = false
     }
 
-    private func startVoiceGatedPlayback() {
-        meter.onLevel = { [weak self] level in
-            self?.amplitudeDriver?.ingest(level: level)
-        }
-        do {
-            try meter.start()
-            driver.play()
-            viewModel.isPlaying = true
-            startTimer()
-        } catch {
-            presentMicDeniedAlert(
-                message: "Couldn't start the microphone: \(error.localizedDescription)")
-        }
+    /// Geometry bridge (Voice mode): convert the aligner's progress (0…1 by character) into a
+    /// target scroll offset that centers the spoken word, and hand it to the voice driver to glide
+    /// toward. Inert until the content has been measured, so it never divides by zero.
+    private func updateVoiceTarget() {
+        guard let voiceDriver, let aligner else { return }
+        let contentHeight = Double(viewModel.contentHeight)
+        guard contentHeight > 0 else { return }
+        let visible = Double(PanelMetrics.height - PanelMetrics.textInset * 2)
+        let wordY = aligner.progressFraction * contentHeight
+        let maxOffset = ScrollBounds.maxOffset(contentHeight: contentHeight, visibleHeight: visible)
+        let target = min(max(wordY - visible / 2, 0), maxOffset)
+        voiceDriver.setTarget(target)
     }
 
     private func presentMicDeniedAlert(
@@ -179,11 +293,41 @@ final class NotchController: NSObject {
         alert.runModal()
     }
 
+    /// Explain why Voice mode can't run. Distinct copy per cause so the user knows whether to grant
+    /// permission, switch language, or just try again — and reassures that audio stays on-device.
+    private func presentSpeechUnavailableAlert(_ availability: SpeechAvailability) {
+        let title: String
+        let message: String
+        switch availability {
+        case .denied:
+            title = "Speech recognition access needed"
+            message = "Eyeline needs Speech Recognition access to follow your voice. Enable it in "
+                + "System Settings ▸ Privacy & Security ▸ Speech Recognition."
+        case .unsupportedOnDevice:
+            title = "On-device speech unavailable"
+            message = "Your Mac can't run on-device speech recognition for the current language, "
+                + "so Voice mode isn't available. Eyeline never sends audio off your device — "
+                + "try Loudness mode instead."
+        case .available, .unavailable:
+            title = "Voice mode unavailable"
+            message = "Eyeline couldn't start speech recognition right now. Try again, or use "
+                + "Loudness mode."
+        }
+        isPresentingModal = true
+        defer { isPresentingModal = false }
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = message
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+
     func restart() {
         guard !isPresentingModal else { return }
         if !isVisible { reveal() }
         driver.reset()
         viewModel.offset = 0
+        aligner?.reset()
     }
 
     /// Push new script text into the teleprompter (called by the app when selection/body changes).
@@ -192,6 +336,8 @@ final class NotchController: NSObject {
         viewModel.text = text
         driver.reset()
         viewModel.offset = 0
+        // Re-tokenize for the new script so Voice mode aligns against the right words.
+        if mode == .voice { aligner = ScriptAligner(script: text) }
     }
 
     // MARK: Scroll loop

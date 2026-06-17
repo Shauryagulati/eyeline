@@ -35,6 +35,11 @@ public final class TimedScrollDriver: ScrollDriver {
         }
     }
 
+    public func seek(to offset: Double) {
+        self.offset = offset
+        lastTick = nil   // re-baseline so the next advance() doesn't add the gap as scroll
+    }
+
     public func reset() {
         offset = 0
         lastTick = nil

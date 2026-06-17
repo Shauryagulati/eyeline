@@ -79,6 +79,18 @@ struct AmplitudeScrollDriverTests {
         #expect(driver.offset == 200)
     }
 
+    @Test("seek sets the offset and continues from there")
+    func seekContinues() {
+        let driver = makeDriver()
+        driver.seek(to: 150)
+        #expect(driver.offset == 150)
+        driver.play()
+        driver.ingest(level: 0.5)
+        driver.advance(to: 0)       // baseline (seek cleared the clock)
+        driver.advance(to: 1)       // +100 voiced
+        #expect(driver.offset == 250)
+    }
+
     @Test("reset returns to the top and clears the gate")
     func resetReturnsToTop() {
         let driver = makeDriver()

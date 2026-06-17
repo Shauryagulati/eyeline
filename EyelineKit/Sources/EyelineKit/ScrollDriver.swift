@@ -14,6 +14,10 @@ public protocol ScrollDriver: AnyObject {
     /// Advance internal state to absolute time `now` (seconds, monotonic).
     /// Called once per render frame with a real timestamp; injected directly in tests.
     func advance(to now: TimeInterval)
+    /// Jump the offset to an absolute value without animating, re-baselining the clock so the next
+    /// `advance(to:)` doesn't lurch. Used when switching scroll modes so the freshly-installed
+    /// driver adopts the current scroll position instead of snapping to the top.
+    func seek(to offset: Double)
     /// Return to the top of the script.
     func reset()
 }

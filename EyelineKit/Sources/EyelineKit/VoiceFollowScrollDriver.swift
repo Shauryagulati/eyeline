@@ -66,6 +66,12 @@ public final class VoiceFollowScrollDriver: ScrollDriver {
         offset += step
     }
 
+    public func seek(to offset: Double) {
+        self.offset = offset
+        target = offset     // adopt the position as the goal so it rests rather than easing away
+        lastTick = nil      // re-baseline the clock
+    }
+
     public func reset() {
         offset = 0
         target = 0          // clear the goal too, so we don't immediately ease back up

@@ -16,6 +16,9 @@ import Speech
 @MainActor
 final class SFSpeechSource: SpeechSource {
     var onWords: (([String]) -> Void)?
+    /// Called on the main actor when recognition repeatedly fails to produce words and the source
+    /// gives up (e.g. permission revoked mid-session). Lets the controller stop + surface it.
+    var onUnavailable: (() -> Void)?
 
     private let recognizer: SFSpeechRecognizer
     private let engine = AVAudioEngine()
@@ -28,6 +31,10 @@ final class SFSpeechSource: SpeechSource {
     private var committedWords: [String] = []
     /// How many trailing words to surface to the aligner each update.
     private let tailLength = 12
+    /// Consecutive session restarts that produced no words. Reset whenever words come through; if
+    /// it crosses the cap, recognition is broken (not just paused) and we stop instead of looping.
+    private var restartsSinceWords = 0
+    private let maxRestartsSinceWords = 8
 
     /// Fails if the current locale has no recognizer at all. On-device support is checked
     /// separately via `SpeechPermission.ensureOnDeviceAccess` before Voice mode commits.
@@ -39,6 +46,7 @@ final class SFSpeechSource: SpeechSource {
     func start() throws {
         guard !running else { return }
         committedWords = []
+        restartsSinceWords = 0
         try beginSession()
         running = true
     }
@@ -105,16 +113,26 @@ final class SFSpeechSource: SpeechSource {
     private func handle(sessionWords: [String]?, isFinal: Bool, failed: Bool) {
         guard running else { return }
 
-        if let sessionWords {
+        if let sessionWords, !sessionWords.isEmpty {
             let tail = Array((committedWords + sessionWords).suffix(tailLength))
             onWords?(tail)
+            restartsSinceWords = 0          // recognition is alive; reset the failure counter
             if isFinal {
                 // Fold this session's words into the carried tail before the next session starts.
                 committedWords = tail
             }
         }
 
-        if isFinal || failed {
+        guard isFinal || failed else { return }
+
+        // A session that ended having produced nothing pushes the counter up; enough of those in a
+        // row means recognition is broken (not merely a silent pause), so we give up rather than
+        // spin restarting forever.
+        restartsSinceWords += 1
+        if restartsSinceWords > maxRestartsSinceWords {
+            stop()
+            onUnavailable?()
+        } else {
             restartSession()
         }
     }

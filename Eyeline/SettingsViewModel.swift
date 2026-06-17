@@ -7,6 +7,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var speed: Double
     @Published var fontSize: Double
     @Published var widthPreset: WidthPreset
+    @Published var mode: ScrollMode
 
     private let store: SettingsStore
 
@@ -14,12 +15,16 @@ final class SettingsViewModel: ObservableObject {
     var onSpeedChange: ((Double) -> Void)?
     var onFontSizeChange: ((Double) -> Void)?
     var onWidthChange: ((Double) -> Void)?   // passes points
+    /// Mode change is async: the controller may need to acquire permissions first. It calls back
+    /// with `true` if the mode took, `false` if it was rejected (so we revert the picker).
+    var onModeChange: ((ScrollMode, @escaping (Bool) -> Void) -> Void)?
 
     init(store: SettingsStore) {
         self.store = store
         self.speed = store.settings.speed
         self.fontSize = store.settings.fontSize
         self.widthPreset = store.settings.widthPreset
+        self.mode = store.settings.mode
     }
 
     func setSpeed(_ v: Double) {
@@ -38,5 +43,19 @@ final class SettingsViewModel: ObservableObject {
         store.setWidthPreset(p)
         widthPreset = store.settings.widthPreset
         onWidthChange?(widthPreset.points)
+    }
+
+    func setMode(_ m: ScrollMode) {
+        let previous = mode
+        guard m != previous else { return }
+        mode = m   // optimistic: the picker moves immediately…
+        onModeChange?(m) { [weak self] success in
+            guard let self else { return }
+            if success {
+                self.store.setMode(m)
+            } else {
+                self.mode = previous   // …but snaps back if the mode was rejected (M2)
+            }
+        }
     }
 }
