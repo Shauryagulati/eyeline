@@ -6,6 +6,12 @@ docs/
 CLAUDE.local.md
 *.local.md
 
+# Private status / run notes at the repo root (overnight reports, status dumps) — never track.
+NOTES-overnight.md
+NOTES-*.md
+*-overnight.md
+STATUS.md
+
 # Swift Package Manager
 .build/
 .swiftpm/
