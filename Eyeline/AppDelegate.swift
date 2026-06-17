@@ -36,24 +36,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
 
         let playItem = NSMenuItem(
-            title: "Play / Pause", action: #selector(togglePlay), keyEquivalent: "p")
+            title: "Play / Pause", action: #selector(togglePlay), keyEquivalent: "")
         playItem.target = self
         menu.addItem(playItem)
 
         let restartItem = NSMenuItem(
-            title: "Restart", action: #selector(restart), keyEquivalent: "r")
+            title: "Restart", action: #selector(restart), keyEquivalent: "")
         restartItem.target = self
         menu.addItem(restartItem)
 
         let voiceItem = NSMenuItem(
-            title: "Voice-gated scrolling", action: #selector(toggleVoiceGated), keyEquivalent: "v")
+            title: "Voice-gated scrolling", action: #selector(toggleVoiceGated), keyEquivalent: "")
         voiceItem.target = self
         voiceItem.state = .off
         menu.addItem(voiceItem)
         self.voiceItem = voiceItem
 
         let scriptsItem = NSMenuItem(
-            title: "Scripts…", action: #selector(openScripts), keyEquivalent: "s")
+            title: "Scripts…", action: #selector(openScripts), keyEquivalent: "")
         scriptsItem.target = self
         menu.addItem(scriptsItem)
 

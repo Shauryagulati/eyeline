@@ -2,12 +2,12 @@ import AppKit
 import SwiftUI
 
 /// A borderless, non-activating panel pinned under the notch.
-/// Borderless style avoids macOS repositioning the frame; non-activating keeps
-/// the user's current app focused when the panel shows.
+/// Borderless style avoids macOS repositioning the frame; non-activating keeps the user's current
+/// app focused even when they tap the panel to play/pause.
 final class NotchPanel: NSPanel {
     init(rootView: some View) {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 360, height: 140),
+            contentRect: NSRect(origin: .zero, size: PanelMetrics.size),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered, defer: false)
 
@@ -17,7 +17,7 @@ final class NotchPanel: NSPanel {
         isOpaque = false
         backgroundColor = .clear
         hasShadow = false
-        ignoresMouseEvents = true            // skeleton: click-through; controls come later
+        ignoresMouseEvents = false            // tappable for play/pause; non-activating keeps focus
         isMovableByWindowBackground = false
 
         let hosting = NSHostingView(rootView: rootView)
