@@ -22,6 +22,7 @@
 		AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43009D7A794DB98103695D4 /* NotchController.swift */; };
 		AD6A141ADCB49C866194F50A /* SFSpeechSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3469941DFB9BAB88DDD6F7E /* SFSpeechSource.swift */; };
 		AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */; };
+		B76AACA3B9EEF2830146C4BB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C14D1F46C7542CE3BAB4665 /* Assets.xcassets */; };
 		C71064159BBAA24DA3BA758F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1306AF4E30BD2008C3A15B23 /* SettingsView.swift */; };
 		CD794CD0334F1D9EAAFA526A /* AppActivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 683A28EC2EB043A4089CD8BC /* AppActivation.swift */; };
 		D22F7EB97F98D33439B641B6 /* ScriptsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */; };
@@ -43,6 +44,7 @@
 		89F9D7A9DA622341FD4EC247 /* ScriptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsView.swift; sourceTree = "<group>"; };
 		8E8CBD74FC12E5202DC02050 /* ScriptLibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptLibraryViewModel.swift; sourceTree = "<group>"; };
 		971428897E1A3F45D0BEF86C /* ScriptsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsWindowController.swift; sourceTree = "<group>"; };
+		9C14D1F46C7542CE3BAB4665 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C3469941DFB9BAB88DDD6F7E /* SFSpeechSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFSpeechSource.swift; sourceTree = "<group>"; };
 		C79E75519469342627369F94 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		CA1B11C1BA7CB44AF7D6035E /* MicPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicPermission.swift; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 			children = (
 				683A28EC2EB043A4089CD8BC /* AppActivation.swift */,
 				2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */,
+				9C14D1F46C7542CE3BAB4665 /* Assets.xcassets */,
 				50E207A5ED0C550289A9717D /* EyelineApp.swift */,
 				EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */,
 				CA1B11C1BA7CB44AF7D6035E /* MicPermission.swift */,
@@ -123,6 +126,7 @@
 			buildConfigurationList = 53FF353D72B9436E77BEAA2B /* Build configuration list for PBXNativeTarget "Eyeline" */;
 			buildPhases = (
 				35ECEAFDEB43FD2D51597FF8 /* Sources */,
+				66D24BA7FCE15288C70FB75A /* Resources */,
 				90D1669FCB0AFCF4F032E3B6 /* Frameworks */,
 			);
 			buildRules = (
@@ -174,6 +178,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		66D24BA7FCE15288C70FB75A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B76AACA3B9EEF2830146C4BB /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		35ECEAFDEB43FD2D51597FF8 /* Sources */ = {
