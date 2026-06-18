@@ -53,10 +53,17 @@ struct SettingsView: View {
                 KeyboardShortcuts.Recorder("Restart:", name: .restart)
                 KeyboardShortcuts.Recorder("Hide / Show:", name: .toggleHidden)
             }
+
+            Section("General") {
+                Toggle("Open at login", isOn: Binding(
+                    get: { model.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
+            }
         }
         .formStyle(.grouped)
         .frame(width: 420)
         .fixedSize(horizontal: false, vertical: true)
+        // Re-read the OS login-item state on open, so it reflects changes made from the menu bar.
+        .onAppear { model.refreshLaunchAtLogin() }
     }
 
     private var modeHint: String {

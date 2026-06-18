@@ -14,6 +14,7 @@
 		3BC5D73C565C438F231A8851 /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CCD401ABCEE052C936AECBB /* Shortcuts.swift */; };
 		465208962B94EA4E31B04078 /* EyelineKit in Frameworks */ = {isa = PBXBuildFile; productRef = 05A627A608E04B15BC5E2DD4 /* EyelineKit */; };
 		4F4D2A13561EEE3192DD4920 /* MicLevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */; };
+		606FD9F2E65BA819BF9EDCEF /* LaunchAtLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 365FED77699033C9FD211700 /* LaunchAtLogin.swift */; };
 		8E6A9300F75559E6A3F2DB1C /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AB6AEABCD8F56A5016C8540B /* KeyboardShortcuts */; };
 		9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E207A5ED0C550289A9717D /* EyelineApp.swift */; };
 		92A06002B36DECC91C2148B6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06166CEC68D965CC5FCBE0A /* AboutView.swift */; };
@@ -38,6 +39,7 @@
 		1EB00E9501BB3A06490F76EB /* TeleprompterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeleprompterView.swift; sourceTree = "<group>"; };
 		1F926B06390EE2A0327070EF /* EyelineKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = EyelineKit; path = EyelineKit; sourceTree = SOURCE_ROOT; };
 		2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		365FED77699033C9FD211700 /* LaunchAtLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLogin.swift; sourceTree = "<group>"; };
 		3CFD4AAA887C4C00C9D619D8 /* PanelMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMetrics.swift; sourceTree = "<group>"; };
 		47C2C236E4AD3EFB40B5E77D /* AboutWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutWindowController.swift; sourceTree = "<group>"; };
 		4CCD401ABCEE052C936AECBB /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shortcuts.swift; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 				2882A470D9EFE259C50F4BD0 /* AppDelegate.swift */,
 				9C14D1F46C7542CE3BAB4665 /* Assets.xcassets */,
 				50E207A5ED0C550289A9717D /* EyelineApp.swift */,
+				365FED77699033C9FD211700 /* LaunchAtLogin.swift */,
 				EBEDA99A5BD7E01D500F1417 /* MicLevelMeter.swift */,
 				CA1B11C1BA7CB44AF7D6035E /* MicPermission.swift */,
 				E43009D7A794DB98103695D4 /* NotchController.swift */,
@@ -206,6 +209,7 @@
 				CD794CD0334F1D9EAAFA526A /* AppActivation.swift in Sources */,
 				AD9458295D16A20969A0F5A5 /* AppDelegate.swift in Sources */,
 				9158C0E959A353B0600305E3 /* EyelineApp.swift in Sources */,
+				606FD9F2E65BA819BF9EDCEF /* LaunchAtLogin.swift in Sources */,
 				4F4D2A13561EEE3192DD4920 /* MicLevelMeter.swift in Sources */,
 				A0F2108F8450B861DCF6FD3F /* MicPermission.swift in Sources */,
 				AA4BABD1A60BA4405200F006 /* NotchController.swift in Sources */,

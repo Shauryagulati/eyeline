@@ -8,6 +8,9 @@ final class SettingsViewModel: ObservableObject {
     @Published var fontSize: Double
     @Published var widthPreset: WidthPreset
     @Published var mode: ScrollMode
+    /// Mirrors the OS login-item state (SMAppService), not the persisted Settings blob. Re-read from
+    /// the OS whenever the Settings window appears so it stays truthful if changed elsewhere.
+    @Published var launchAtLogin: Bool
 
     private let store: SettingsStore
 
@@ -25,6 +28,7 @@ final class SettingsViewModel: ObservableObject {
         self.fontSize = store.settings.fontSize
         self.widthPreset = store.settings.widthPreset
         self.mode = store.settings.mode
+        self.launchAtLogin = LaunchAtLogin.isEnabled
     }
 
     func setSpeed(_ v: Double) {
@@ -43,6 +47,17 @@ final class SettingsViewModel: ObservableObject {
         store.setWidthPreset(p)
         widthPreset = store.settings.widthPreset
         onWidthChange?(widthPreset.points)
+    }
+
+    /// Write the OS login-item state, then reflect what actually took (the OS can reject the change).
+    func setLaunchAtLogin(_ enabled: Bool) {
+        launchAtLogin = LaunchAtLogin.setEnabled(enabled)
+    }
+
+    /// Re-read the OS login-item state — called when the Settings window appears, so a change made
+    /// from the menu bar (or System Settings) is reflected.
+    func refreshLaunchAtLogin() {
+        launchAtLogin = LaunchAtLogin.isEnabled
     }
 
     func setMode(_ m: ScrollMode) {

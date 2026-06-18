@@ -6,10 +6,11 @@ import KeyboardShortcuts
 // isolate the whole delegate to the main actor. This lets the @objc menu handlers call
 // into the @MainActor NotchController without actor-isolation errors.
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private var notch: NotchController!
     private var hideItem: NSMenuItem!
+    private var launchAtLoginItem: NSMenuItem!
     private var scriptLibrary: ScriptLibraryViewModel!
     private var scriptsWindow: ScriptsWindowController!
     private var settingsStore: SettingsStore!
@@ -118,6 +119,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsItem.target = self
         menu.addItem(settingsItem)
 
+        let launchAtLoginItem = NSMenuItem(
+            title: "Open at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        launchAtLoginItem.target = self
+        menu.addItem(launchAtLoginItem)
+        self.launchAtLoginItem = launchAtLoginItem
+
         menu.addItem(.separator())
 
         let aboutItem = NSMenuItem(
@@ -128,7 +135,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(
             title: "Quit Eyeline",
             action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.delegate = self   // so the Open-at-Login checkmark refreshes each time the menu opens
         statusItem.menu = menu
+    }
+
+    /// Refresh state that can change outside the menu before it's shown — currently the
+    /// Open-at-Login checkmark (the OS, or the Settings toggle, may have changed it).
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        launchAtLoginItem.state = LaunchAtLogin.isEnabled ? .on : .off
     }
 
     // Targets set explicitly on the items above so they never grey out — a non-activating
@@ -151,5 +165,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openAbout() {
         aboutWindow.show()
+    }
+
+    @objc private func toggleLaunchAtLogin() {
+        let result = LaunchAtLogin.setEnabled(!LaunchAtLogin.isEnabled)
+        launchAtLoginItem.state = result ? .on : .off
+        // Keep the Settings toggle in sync if that window happens to be open.
+        settingsViewModel?.refreshLaunchAtLogin()
     }
 }
