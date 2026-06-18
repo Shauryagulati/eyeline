@@ -53,6 +53,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         notch.restoreMode(s.mode)
 
         setUpStatusItem()
+        setUpMainMenu()
         notch.show()
 
         seedDefaultShortcutsIfNeeded()
@@ -143,6 +144,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// Open-at-Login checkmark (the OS, or the Settings toggle, may have changed it).
     func menuNeedsUpdate(_ menu: NSMenu) {
         launchAtLoginItem.state = LaunchAtLogin.isEnabled ? .on : .off
+    }
+
+    /// The app is LSUIElement with no menu bar of its own — but it flips to `.regular` while the
+    /// Scripts/Settings windows are open, and a SwiftUI text editor's Cut/Copy/Paste/Undo/Select All
+    /// route through the standard Edit-menu key equivalents to the first responder. Without a main
+    /// menu those keystrokes do nothing in the Scripts editor. This builds a minimal native menu:
+    /// an app menu (so the bar reads correctly when active) and the Edit menu that does the work.
+    private func setUpMainMenu() {
+        let mainMenu = NSMenu()
+
+        // App menu — fills the bold app-name slot so the active menu bar looks native.
+        let appItem = NSMenuItem()
+        mainMenu.addItem(appItem)
+        let appMenu = NSMenu()
+        appItem.submenu = appMenu
+        let aboutItem = NSMenuItem(title: "About Eyeline", action: #selector(openAbout), keyEquivalent: "")
+        aboutItem.target = self
+        appMenu.addItem(aboutItem)
+        appMenu.addItem(.separator())
+        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        appMenu.addItem(settingsItem)
+        appMenu.addItem(.separator())
+        appMenu.addItem(NSMenuItem(
+            title: "Quit Eyeline", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+
+        // Edit menu — nil targets route each command to the first responder (the focused text view).
+        let editItem = NSMenuItem()
+        mainMenu.addItem(editItem)
+        let editMenu = NSMenu(title: "Edit")
+        editItem.submenu = editMenu
+        editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        let redo = editMenu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "z")
+        redo.keyEquivalentModifierMask = [.command, .shift]
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Delete", action: #selector(NSText.delete(_:)), keyEquivalent: "")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+
+        NSApp.mainMenu = mainMenu
     }
 
     // Targets set explicitly on the items above so they never grey out — a non-activating
