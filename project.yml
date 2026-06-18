@@ -3,7 +3,7 @@
 # EyelineKit (the tested brain) stays a standalone SwiftPM package; the app links it.
 name: Eyeline
 options:
-  bundleIdPrefix: com.sgulati
+  bundleIdPrefix: com.eyeline
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -25,7 +25,7 @@ targets:
       - package: KeyboardShortcuts
         product: KeyboardShortcuts
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: com.sgulati.Eyeline
+      PRODUCT_BUNDLE_IDENTIFIER: com.eyeline.Eyeline
       MARKETING_VERSION: "0.0.1"
       CURRENT_PROJECT_VERSION: "1"
       # FIX #1: pin the app target to Swift 5 language mode, matching EyelineKit's
