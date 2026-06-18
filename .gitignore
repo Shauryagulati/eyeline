@@ -22,5 +22,9 @@ xcuserdata/
 *.xcuserstate
 DerivedData/
 
+# Release build artifacts (scripts/release.sh) — built on demand, never tracked.
+.release-build/
+dist/
+
 # macOS
 .DS_Store

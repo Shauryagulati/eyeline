@@ -20,12 +20,30 @@ speech recognition — runs on your Mac and nothing is ever recorded or sent any
 - **Menu-bar app** — lives in the menu bar (no Dock clutter); optional launch at login.
 - **On-device speech** — recognition is forced on-device, so audio never leaves your Mac.
 
-## Requirements
+## Install
+
+1. Download the latest `Eyeline-vX.Y.Z.zip` from the
+   [Releases page](https://github.com/Shauryagulati/eyeline/releases).
+2. Unzip it and drag **Eyeline.app** into your `/Applications` folder.
+3. Eyeline isn't notarized by Apple yet (it's a free project — no paid Developer account), so
+   macOS Gatekeeper warns you the first time you open it. To get past it **once**:
+   - **System Settings → Privacy & Security**, scroll to the bottom, and click **Open Anyway**; or
+   - Control-click (right-click) `Eyeline.app` → **Open** → **Open**.
+4. If macOS instead says the app **"is damaged and can't be opened,"** that's just the quarantine
+   flag on an unsigned download — clear it with:
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/Eyeline.app
+   ```
+
+Eyeline lives in your menu bar (no Dock icon) and runs entirely on-device — it never connects to
+the network.
+
+## Requirements (to build from source)
 
 - macOS 14 or later
 - Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (to generate the app project)
 
-## Build & run
+## Build from source
 
 The repo has two parts: `EyelineKit/` is the pure-logic "brain" (a Swift Package, unit-tested
 and headless), and `Eyeline/` is the thin AppKit + SwiftUI app shell.
