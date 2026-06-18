@@ -63,9 +63,7 @@ private struct ScriptEditor: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            TextField("Title", text: $title)
-                .textFieldStyle(.roundedBorder)
-                .font(.headline)
+            ScriptTitleField(text: $title)
                 .onChange(of: title) { _, newValue in onChange(newValue, bodyText) }
 
             ScriptTextView(text: $bodyText, font: .systemFont(ofSize: 14))
@@ -82,6 +80,48 @@ private struct ScriptEditor: View {
             }
         }
         .padding()
+    }
+}
+
+/// AppKit-backed single-line title field. A SwiftUI `TextField` in this hosted (non-scene) window
+/// installs SwiftUI's *own* field editor and clamps the window's first responder to it — which
+/// blocks the AppKit Edit menu (⌘X/⌘C/⌘V/⌘A) for the WHOLE window, including the body editor below,
+/// because `paste:` and friends then resolve to SwiftUI's field editor instead of a real text view.
+/// (Verified: removing the SwiftUI `TextField` let the body `NSTextView` hold first responder.)
+/// Keeping every text control in AppKit lets the standard responder chain + Edit menu work.
+private struct ScriptTitleField: NSViewRepresentable {
+    @Binding var text: String
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    func makeNSView(context: Context) -> NSTextField {
+        let field = NSTextField(string: text)
+        field.delegate = context.coordinator
+        field.placeholderString = "Title"
+        field.font = .preferredFont(forTextStyle: .headline)
+        field.lineBreakMode = .byTruncatingTail
+        field.usesSingleLineMode = true
+        field.cell?.wraps = false
+        field.cell?.isScrollable = true
+        // Hug vertically so SwiftUI lays it out as one standard row instead of stretching it.
+        field.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        field.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+        return field
+    }
+
+    func updateNSView(_ field: NSTextField, context: Context) {
+        // Only overwrite on an external change (switching scripts); never mid-edit.
+        if field.stringValue != text { field.stringValue = text }
+    }
+
+    final class Coordinator: NSObject, NSTextFieldDelegate {
+        private let parent: ScriptTitleField
+        init(_ parent: ScriptTitleField) { self.parent = parent }
+
+        func controlTextDidChange(_ obj: Notification) {
+            guard let field = obj.object as? NSTextField else { return }
+            parent.text = field.stringValue
+        }
     }
 }
 
