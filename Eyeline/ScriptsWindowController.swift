@@ -31,12 +31,13 @@ final class ScriptsWindowController: NSObject, NSWindowDelegate {
             win.setFrameAutosaveName("EyelineScripts")
             window = win
         }
-        // Become a regular app so the editor's TextField/TextEditor accept keyboard input.
+        // Become a regular app so the editor's text view can become key and accept keyboard input.
         NSApp.setActivationPolicy(.regular)
         // Drop the always-on-top notch panel below this window so it can't cover the editor.
         notch.setOverlayElevated(false)
-        NSApp.activate()
-        window?.makeKeyAndOrderFront(nil)
+        // Forcefully pull the window in front + make it key (see AppActivation.bringToFront): the
+        // cooperative NSApp.activate() leaves an agent app's window behind the currently-active app.
+        AppActivation.bringToFront(window)
     }
 
     func windowWillClose(_ notification: Notification) {

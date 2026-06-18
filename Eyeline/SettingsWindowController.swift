@@ -32,8 +32,9 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         // Unlike Scripts, leave the notch panel floating on top while Settings is open: width, font,
         // mode and appearance changes preview live on the card, so the user needs to keep seeing it.
         // The Settings window centers below the notch, so it isn't covered in practice.
-        NSApp.activate()
-        window?.makeKeyAndOrderFront(nil)
+        // Forcefully bring the window forward + key (see AppActivation.bringToFront): the cooperative
+        // NSApp.activate() leaves an agent app's window behind the currently-active app.
+        AppActivation.bringToFront(window)
     }
 
     func windowWillClose(_ notification: Notification) {

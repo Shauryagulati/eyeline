@@ -13,4 +13,18 @@ enum AppActivation {
             $0 !== closing && $0.isVisible && $0.styleMask.contains(.titled)
         }
     }
+
+    /// Bring `window` forward as the key window for an LSUIElement app that has just switched to
+    /// `.regular`. The no-argument `NSApp.activate()` is *cooperative* on macOS 14+ — it yields to
+    /// whatever app is currently frontmost — so an agent app's on-demand window opens *behind* the
+    /// active app and never becomes key. With no key window there is no first responder, so the
+    /// Edit-menu shortcuts (⌘X/⌘C/⌘V/⌘A) silently no-op in the editor. The deprecated forceful
+    /// variant is the only API that reliably pulls the window forward, which is exactly the UX the
+    /// user asked for by choosing a menu item; `orderFrontRegardless` covers the activation handoff.
+    @MainActor
+    static func bringToFront(_ window: NSWindow?) {
+        NSApp.activate(ignoringOtherApps: true)
+        window?.makeKeyAndOrderFront(nil)
+        window?.orderFrontRegardless()
+    }
 }
