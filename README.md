@@ -22,18 +22,28 @@ speech recognition — runs on your Mac and nothing is ever recorded or sent any
 
 ## Install
 
+### Option A — Homebrew (easiest)
+
+```bash
+brew install --cask shauryagulati/tap/eyeline
+```
+
+That's it — the app opens normally. Eyeline isn't notarized by Apple yet (it's a free project
+with no paid Developer account), so the cask clears the macOS quarantine flag for you on install.
+Update or remove it later with `brew upgrade --cask eyeline` / `brew uninstall --cask eyeline`.
+
+### Option B — Download the app
+
 1. Download the `.zip` from the
    [latest release](https://github.com/Shauryagulati/eyeline/releases/latest).
 2. Unzip it and drag **Eyeline.app** into your `/Applications` folder.
-3. Eyeline isn't notarized by Apple yet (it's a free project — no paid Developer account), so
-   macOS Gatekeeper warns you the first time you open it. To get past it **once**:
-   - **System Settings → Privacy & Security**, scroll to the bottom, and click **Open Anyway**; or
-   - Control-click (right-click) `Eyeline.app` → **Open** → **Open**.
-4. If macOS instead says the app **"is damaged and can't be opened,"** that's just the quarantine
-   flag on an unsigned download — clear it with:
+3. Because Eyeline isn't notarized, macOS blocks the first launch (you'll see a warning that it
+   "could not be verified"). Clear the quarantine flag once and it opens normally afterward:
    ```bash
    xattr -dr com.apple.quarantine /Applications/Eyeline.app
    ```
+   Prefer not to use Terminal? Try to open the app, click **Done** on the warning (**not** Move to
+   Trash), then go to **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**.
 
 Eyeline lives in your menu bar (no Dock icon) and runs entirely on-device — it never connects to
 the network.
