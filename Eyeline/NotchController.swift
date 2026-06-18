@@ -214,11 +214,12 @@ final class NotchController: NSObject {
             pausePlayback()
             return
         }
-        // Reached the end last time → start over from the top.
-        if isAtEnd {
+        // Reached the end last time → start over from the top. Voice mode is excluded: there a tap
+        // resumes following in place (so you can pause on a tangent and come back), and an explicit
+        // Restart is the way back to the top. (M1)
+        if isAtEnd && mode != .voice {
             driver.reset()
             viewModel.offset = 0
-            aligner?.reset()
         }
         startPlayback()
     }
@@ -343,9 +344,20 @@ final class NotchController: NSObject {
     func restart() {
         guard !isPresentingModal else { return }
         if !isVisible { reveal() }
-        driver.reset()
-        viewModel.offset = 0
-        aligner?.reset()
+        if mode == .voice {
+            // Voice holds a rolling tail of recognized words; resetting only the aligner would let
+            // it re-lock off those stale words. Stop the session (stop() clears the tail), return to
+            // the top, and resume a fresh session if it was running. (M2)
+            let wasPlaying = driver.isPlaying
+            pausePlayback()
+            driver.reset()
+            viewModel.offset = 0
+            aligner?.reset()
+            if wasPlaying { startPlayback() }
+        } else {
+            driver.reset()
+            viewModel.offset = 0
+        }
     }
 
     /// Push new script text into the teleprompter (called by the app when selection/body changes).
@@ -379,7 +391,10 @@ final class NotchController: NSObject {
     @objc private func tick() {
         driver.advance(to: CACurrentMediaTime())
         viewModel.offset = driver.offset
-        if isAtEnd { pausePlayback() }   // auto-stop once the end of the script is in view
+        // Auto-stop at the end only in clock/Voice-gated modes. In Voice mode the offset is
+        // target-driven by the aligner (not monotonic), so auto-stopping would cut the recognizer
+        // off mid-final-sentence and fight the aligner. (M1)
+        if mode != .voice && isAtEnd { pausePlayback() }
     }
 
     /// True once the script has scrolled far enough that the remainder fits the visible area.
