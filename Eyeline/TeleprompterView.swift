@@ -18,6 +18,10 @@ final class TeleprompterViewModel: ObservableObject {
 
 struct TeleprompterView: View {
     @ObservedObject var model: TeleprompterViewModel
+    /// When the user has asked for reduced motion, the decorative ease transitions below collapse to
+    /// instant. The continuous teleprompter scroll itself is essential content motion (the whole
+    /// point of the app), not decoration, so it's deliberately left running.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let inset = PanelMetrics.textInset
     private let corner = PanelMetrics.cornerRadius
@@ -104,12 +108,12 @@ struct TeleprompterView: View {
         .onPreferenceChange(ContentHeightKey.self) { height in
             model.contentHeight = height
         }
-        .animation(.easeInOut(duration: 0.2), value: model.isPlaying)
-        .animation(.easeInOut(duration: 0.2), value: isEmptyScript)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: model.isPlaying)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: isEmptyScript)
         // Match the window-frame animation in NotchController.setWidth so the card's content and
         // its window grow in lockstep; font changes ease rather than snap.
-        .animation(.easeInOut(duration: 0.18), value: model.width)
-        .animation(.easeInOut(duration: 0.18), value: model.fontSize)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: model.width)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: model.fontSize)
     }
 
     /// The script laid out at its FULL height, then scrolled within a fixed, top-pinned, clipped

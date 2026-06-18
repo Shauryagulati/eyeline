@@ -469,7 +469,9 @@ final class NotchController: NSObject {
             screenFrame: screen.frame,
             topInset: topInset,
             size: CGSize(width: currentWidth, height: PanelMetrics.height))
-        if animated {
+        // Reduce Motion collapses the width-change ease to an instant set, matching the card's
+        // contents (TeleprompterView gates the same transitions on accessibilityReduceMotion).
+        if animated && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = 0.18
                 context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
