@@ -187,7 +187,17 @@ final class NotchController: NSObject {
             let d = VoiceFollowScrollDriver()
             voiceDriver = d
             driver = d
-            aligner = ScriptAligner(script: viewModel.text)
+            let newAligner = ScriptAligner(script: viewModel.text)
+            // Re-entering Voice at an already-scrolled position must not snap back to the top (H1):
+            // seed the lock near the current place so the first recognized word re-locks from there
+            // instead of from index 0. Inverse of updateVoiceTarget's progress→offset mapping;
+            // only meaningful once the content has been measured.
+            if viewModel.contentHeight > 0 {
+                let visible = Double(PanelMetrics.height - PanelMetrics.textInset * 2)
+                let readingLine = visible * voiceReadingLineFraction
+                newAligner.seek(toProgress: (position + readingLine) / Double(viewModel.contentHeight))
+            }
+            aligner = newAligner
             speechSource = SFSpeechSource()
         }
 

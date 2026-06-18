@@ -108,6 +108,39 @@ struct ScriptAlignerTests {
         #expect(a.progressFraction == 1)
     }
 
+    @Test("seek(toProgress:) seeds the lock near a scrolled position without ingesting")
+    func seekSeedsLock() {
+        let a = ScriptAligner(script: Self.script)   // 12 tokens
+        a.seek(toProgress: 0.5)
+        #expect(a.lockedIndex > 0)        // NOT snapped back to the top (the H1 bug)
+        #expect(a.lockedIndex < 11)       // and not at the end either — roughly the middle
+        #expect(a.confidence == 0)        // a hint, not a measured match
+    }
+
+    @Test("seek clamps out-of-range fractions to the ends")
+    func seekClamps() {
+        let a = ScriptAligner(script: Self.script)
+        a.seek(toProgress: -1)
+        #expect(a.lockedIndex == 0)
+        a.seek(toProgress: 2)
+        #expect(a.lockedIndex == 11)      // last token
+    }
+
+    @Test("seek then a clean read re-locks from the seeded place, not the top")
+    func seekThenIngest() {
+        let a = ScriptAligner(script: Self.script)
+        a.seek(toProgress: 0.5)           // ~"test" (index 6)
+        a.ingest(recentWords: ["voice", "following"])   // tokens 8,9 — within the forward window
+        #expect(a.lockedIndex == 9)
+    }
+
+    @Test("seek is inert on an empty script")
+    func seekEmptyInert() {
+        let a = ScriptAligner(script: "   ")
+        a.seek(toProgress: 0.5)
+        #expect(a.lockedIndex == 0)
+    }
+
     @Test("reset returns to the top with zero confidence")
     func resetReturnsToTop() {
         let a = ScriptAligner(script: Self.script)

@@ -124,6 +124,22 @@ public final class ScriptAligner {
         return min(max(f, 0), 1)
     }
 
+    /// Seed the lock to roughly the given progress fraction (0…1) *without* ingesting words. Used
+    /// when Voice mode is (re)entered at an already-scrolled position so the first recognized word
+    /// re-locks near the current place instead of snapping the script back to the top (H1).
+    /// Confidence resets to 0 — the seed is a hint, not a measured match.
+    public func seek(toProgress fraction: Double) {
+        guard !tokens.isEmpty, totalChars > 0 else { return }
+        let targetOffset = min(max(fraction, 0), 1) * Double(totalChars)
+        // Last token whose start is at or before the target character offset.
+        var idx = 0
+        for (i, token) in tokens.enumerated() where Double(token.charOffset) <= targetOffset {
+            idx = i
+        }
+        lockedIndex = idx
+        confidence = 0
+    }
+
     /// Return to the top of the script. Called on Restart — *not* on mode switches.
     public func reset() {
         lockedIndex = 0
