@@ -22,8 +22,8 @@ speech recognition — runs on your Mac and nothing is ever recorded or sent any
 
 ## Install
 
-1. Download the latest `Eyeline-vX.Y.Z.zip` from the
-   [Releases page](https://github.com/Shauryagulati/eyeline/releases).
+1. Download the `.zip` from the
+   [latest release](https://github.com/Shauryagulati/eyeline/releases/latest).
 2. Unzip it and drag **Eyeline.app** into your `/Applications` folder.
 3. Eyeline isn't notarized by Apple yet (it's a free project — no paid Developer account), so
    macOS Gatekeeper warns you the first time you open it. To get past it **once**:
