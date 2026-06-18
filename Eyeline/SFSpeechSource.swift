@@ -102,9 +102,12 @@ final class SFSpeechSource: SpeechSource {
         do {
             try beginSession()
         } catch {
-            // If we can't get audio back, surface an empty tail and give up this session; the
-            // aligner will simply hold. Phase C decides whether to revert the mode.
+            // The rebuild failed to get audio back — typically the input device went away mid-session
+            // (AirPods disconnected, mic unplugged, device switched). The recognizer is now dead, not
+            // merely paused, so surface it the same way the give-up path does instead of leaving Voice
+            // mode "playing" against a recognizer that will never emit another word.
             running = false
+            onUnavailable?()
         }
     }
 
