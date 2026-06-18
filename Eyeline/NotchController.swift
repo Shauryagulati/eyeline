@@ -315,11 +315,11 @@ final class NotchController: NSObject {
             title = "On-device speech unavailable"
             message = "Your Mac can't run on-device speech recognition for the current language, "
                 + "so Voice mode isn't available. Eyeline never sends audio off your device — "
-                + "try Loudness mode instead."
+                + "try Voice-gated mode instead."
         case .available, .unavailable:
             title = "Voice mode unavailable"
             message = "Eyeline couldn't start speech recognition right now. Try again, or use "
-                + "Loudness mode."
+                + "Voice-gated mode."
         }
         isPresentingModal = true
         defer { isPresentingModal = false }

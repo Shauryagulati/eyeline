@@ -29,11 +29,13 @@ public enum ScrollMode: String, Codable, CaseIterable, Sendable {
     case loudness    // amplitude-gated (AmplitudeScrollDriver)
     case voice       // word-following (VoiceFollowScrollDriver)
 
-    /// Human-facing label for the picker.
+    /// Human-facing label for the picker. The enum *case* stays `loudness` (its raw value is what's
+    /// persisted in Settings JSON — renaming it would orphan existing installs); only the display
+    /// label changed to the clearer "Voice-gated".
     public var label: String {
         switch self {
         case .timed:    return "Timed"
-        case .loudness: return "Loudness"
+        case .loudness: return "Voice-gated"
         case .voice:    return "Voice"
         }
     }
