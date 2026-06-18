@@ -340,8 +340,8 @@ final class NotchController: NSObject {
         }
     }
 
-    /// Explain why Voice mode can't run. Distinct copy per cause so the user knows whether to grant
-    /// permission, switch language, or just try again — and reassures that audio stays on-device.
+    /// Explain why Read-along mode can't run. Distinct copy per cause so the user knows whether to
+    /// grant permission, switch language, or just try again — and reassures that audio stays on-device.
     private func presentSpeechUnavailableAlert(_ availability: SpeechAvailability) {
         let title: String
         let message: String
@@ -353,10 +353,10 @@ final class NotchController: NSObject {
         case .unsupportedOnDevice:
             title = "On-device speech unavailable"
             message = "Your Mac can't run on-device speech recognition for the current language, "
-                + "so Voice mode isn't available. Eyeline never sends audio off your device — "
+                + "so Read-along mode isn't available. Eyeline never sends audio off your device — "
                 + "try Voice-gated mode instead."
         case .available, .unavailable:
-            title = "Voice mode unavailable"
+            title = "Read-along mode unavailable"
             message = "Eyeline couldn't start speech recognition right now. Try again, or use "
                 + "Voice-gated mode."
         }
