@@ -8,11 +8,9 @@ import SwiftUI
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private let model: SettingsViewModel
-    private let notch: NotchController
 
-    init(model: SettingsViewModel, notch: NotchController) {
+    init(model: SettingsViewModel) {
         self.model = model
-        self.notch = notch
         super.init()
     }
 
@@ -31,19 +29,19 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             window = win
         }
         NSApp.setActivationPolicy(.regular)
-        // Drop the always-on-top notch panel below this window so the user can see the settings
-        // (the panel sits at the notch, exactly where this window centers).
-        notch.setOverlayElevated(false)
+        // Unlike Scripts, leave the notch panel floating on top while Settings is open: width, font,
+        // mode and appearance changes preview live on the card, so the user needs to keep seeing it.
+        // The Settings window centers below the notch, so it isn't covered in practice.
         NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
     }
 
     func windowWillClose(_ notification: Notification) {
         // Revert to menu-bar-only — but only if the Scripts window isn't still open (see
-        // AppActivation): two policy-flipping windows must not strand each other.
+        // AppActivation): two policy-flipping windows must not strand each other. Settings never
+        // changes the panel's level, so there's nothing to restore here (Scripts handles its own).
         if !AppActivation.otherTitledWindowVisible(besides: notification.object as? NSWindow) {
             NSApp.setActivationPolicy(.accessory)
-            notch.setOverlayElevated(true)   // restore always-on-top once no config window remains
         }
     }
 }

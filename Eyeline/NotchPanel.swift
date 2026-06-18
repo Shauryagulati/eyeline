@@ -25,6 +25,10 @@ final class NotchPanel: NSPanel {
         hasShadow = true                      // opaque card casts a soft system shadow for depth
         ignoresMouseEvents = false            // tappable for play/pause; non-activating keeps focus
         isMovableByWindowBackground = false
+        // A floating NSPanel hides itself when its host app deactivates by default. A menu-bar app
+        // is effectively never the "active" app, so that default would sink the always-on-top card
+        // behind other apps' windows the moment focus moved elsewhere. Pin it on top regardless.
+        hidesOnDeactivate = false
 
         let hosting = NSHostingView(rootView: rootView)
         hosting.autoresizingMask = [.width, .height]

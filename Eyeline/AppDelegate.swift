@@ -46,7 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             notch.applyMode(newMode, completion: confirm)
         }
         self.settingsViewModel = settingsVM
-        self.settingsWindow = SettingsWindowController(model: settingsVM, notch: notch)
+        self.settingsWindow = SettingsWindowController(model: settingsVM)
 
         // Restore the last-used scroll mode silently (first play acquires any permissions). After
         // setText above, so Voice mode tokenizes the right script.
