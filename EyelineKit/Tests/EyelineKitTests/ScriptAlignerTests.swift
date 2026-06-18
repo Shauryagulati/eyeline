@@ -89,6 +89,25 @@ struct ScriptAlignerTests {
         #expect(late < 1)
     }
 
+    @Test("a single-token script reaches full progress once locked, not pinned at the top")
+    func singleTokenReachesEnd() {
+        // One long word with no spaces: its charOffset is 0, so a start-offset progressFraction
+        // would be pinned at 0 forever and Voice mode could never scroll it. The only token is also
+        // the last, so progress must read as 1 (end in view).
+        let a = ScriptAligner(script: "Supercalifragilisticexpialidocious")
+        a.ingest(recentWords: ["supercalifragilisticexpialidocious"])
+        #expect(a.lockedIndex == 0)
+        #expect(a.progressFraction == 1)
+    }
+
+    @Test("locking the final word reports full progress so the end can scroll into view")
+    func lastTokenReportsFullProgress() {
+        let a = ScriptAligner(script: Self.script)      // 12 tokens, last is "now" (index 11)
+        a.ingest(recentWords: ["alignment", "now"])     // ends at the final token
+        #expect(a.lockedIndex == 11)
+        #expect(a.progressFraction == 1)
+    }
+
     @Test("reset returns to the top with zero confidence")
     func resetReturnsToTop() {
         let a = ScriptAligner(script: Self.script)

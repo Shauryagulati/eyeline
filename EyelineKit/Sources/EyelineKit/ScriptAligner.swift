@@ -114,6 +114,12 @@ public final class ScriptAligner {
     /// Fraction of the script (by character offset) the locked word sits at, 0…1.
     public var progressFraction: Double {
         guard totalChars > 0, tokens.indices.contains(lockedIndex) else { return 0 }
+        // A token's *start* offset undershoots the end: the final token starts before the last
+        // character, so its start-fraction is < 1 — and a one-token / single-long-line script
+        // (start offset 0) would be pinned at 0 forever, so Voice mode could never scroll it. Map
+        // the last token to full progress so the conclusion can come into view. Earlier tokens keep
+        // their start offset, preserving the tuned mid-script look-ahead resting position.
+        if lockedIndex == tokens.count - 1 { return 1 }
         let f = Double(tokens[lockedIndex].charOffset) / Double(totalChars)
         return min(max(f, 0), 1)
     }
