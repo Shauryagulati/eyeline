@@ -45,6 +45,9 @@ targets:
       # Phase 2 Voice mode: on-device speech recognition usage string. Recognition is forced
       # on-device (requiresOnDeviceRecognition), so audio never leaves the Mac.
       INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Eyeline recognizes your speech on-device to follow your place in the script and auto-scroll. Nothing is recorded or sent anywhere."
+      # Shown in the About box and Finder ▸ Get Info. Neutral placeholder (no personal attribution)
+      # until release — revisit alongside LSApplicationCategoryType when the repo goes public.
+      INFOPLIST_KEY_NSHumanReadableCopyright: "Free & open-source · MIT Licensed"
       # Sign to run locally (ad-hoc) — no Apple Developer account needed for this milestone.
       CODE_SIGN_STYLE: Manual
       CODE_SIGN_IDENTITY: "-"

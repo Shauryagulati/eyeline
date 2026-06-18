@@ -24,7 +24,10 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             win.styleMask = [.titled, .closable]
             win.isReleasedWhenClosed = false
             win.delegate = self
-            win.center()
+            // Remember the window's position across launches; center only on first run. The window
+            // is content-sized (non-resizable), so this effectively persists where the user put it.
+            if !win.setFrameUsingName("EyelineSettings") { win.center() }
+            win.setFrameAutosaveName("EyelineSettings")
             window = win
         }
         NSApp.setActivationPolicy(.regular)

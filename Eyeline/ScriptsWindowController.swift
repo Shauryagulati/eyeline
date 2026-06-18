@@ -25,7 +25,10 @@ final class ScriptsWindowController: NSObject, NSWindowDelegate {
             win.setContentSize(NSSize(width: 760, height: 500))
             win.isReleasedWhenClosed = false
             win.delegate = self
-            win.center()
+            // Remember where the user put the window across launches; center only on first run
+            // (no saved frame yet). setFrameAutosaveName then keeps it saved as they move/resize.
+            if !win.setFrameUsingName("EyelineScripts") { win.center() }
+            win.setFrameAutosaveName("EyelineScripts")
             window = win
         }
         // Become a regular app so the editor's TextField/TextEditor accept keyboard input.

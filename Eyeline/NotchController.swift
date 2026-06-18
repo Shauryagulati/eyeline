@@ -323,8 +323,21 @@ final class NotchController: NSObject {
         let alert = NSAlert()
         alert.messageText = "Microphone access needed"
         alert.informativeText = message
+        // Take the user straight to the relevant pane — the default button, since granting access
+        // is the action that resolves this.
+        alert.addButton(withTitle: "Open System Settings")
         alert.addButton(withTitle: "OK")
-        alert.runModal()
+        if alert.runModal() == .alertFirstButtonReturn {
+            openPrivacySettings(anchor: "Privacy_Microphone")
+        }
+    }
+
+    /// Deep-link into a specific System Settings ▸ Privacy & Security pane (e.g. "Privacy_Microphone",
+    /// "Privacy_SpeechRecognition"), so a denied-permission alert can fix itself in one click.
+    private func openPrivacySettings(anchor: String) {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(anchor)") {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     /// Explain why Voice mode can't run. Distinct copy per cause so the user knows whether to grant
@@ -352,8 +365,18 @@ final class NotchController: NSObject {
         let alert = NSAlert()
         alert.messageText = title
         alert.informativeText = message
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
+        // Only a *denied* permission is fixable in System Settings; for unsupported/unavailable the
+        // pane wouldn't help, so those just acknowledge.
+        if availability == .denied {
+            alert.addButton(withTitle: "Open System Settings")
+            alert.addButton(withTitle: "OK")
+            if alert.runModal() == .alertFirstButtonReturn {
+                openPrivacySettings(anchor: "Privacy_SpeechRecognition")
+            }
+        } else {
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+        }
     }
 
     func restart() {

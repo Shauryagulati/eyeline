@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsStore: SettingsStore!
     private var settingsViewModel: SettingsViewModel!
     private var settingsWindow: SettingsWindowController!
+    private let aboutWindow = AboutWindowController()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         notch = NotchController()
@@ -82,8 +83,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setUpStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.image = NSImage(
-            systemSymbolName: "text.aligncenter", accessibilityDescription: "Eyeline")
+        let icon = NSImage(systemSymbolName: "text.aligncenter", accessibilityDescription: "Eyeline")
+        // Template image → the menu bar tints it for light/dark + highlight like a native item.
+        icon?.isTemplate = true
+        statusItem.button?.image = icon
 
         let menu = NSMenu()
 
@@ -108,12 +111,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         scriptsItem.target = self
         menu.addItem(scriptsItem)
 
+        // ⌘, is the conventional Settings shortcut; it fires while the menu is open or the app is
+        // foreground (a config window is up). The menu also displays it as a native affordance.
         let settingsItem = NSMenuItem(
-            title: "Settings…", action: #selector(openSettings), keyEquivalent: "")
+            title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
         settingsItem.target = self
         menu.addItem(settingsItem)
 
         menu.addItem(.separator())
+
+        let aboutItem = NSMenuItem(
+            title: "About Eyeline", action: #selector(openAbout), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+
         menu.addItem(NSMenuItem(
             title: "Quit Eyeline",
             action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
@@ -136,5 +147,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openSettings() {
         settingsWindow.show()
+    }
+
+    @objc private func openAbout() {
+        aboutWindow.show()
     }
 }
