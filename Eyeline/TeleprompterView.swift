@@ -50,6 +50,11 @@ struct TeleprompterView: View {
         model.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    /// What VoiceOver reads as the card's value: the script text, or the first-run prompt when empty.
+    private var accessibilityScriptValue: String {
+        isEmptyScript ? "No script yet. Add one in Scripts from the menu bar." : model.text
+    }
+
     /// Squared top edge so the card sits flush against the notch; only the bottom corners round.
     private var cardShape: UnevenRoundedRectangle {
         UnevenRoundedRectangle(
@@ -88,6 +93,14 @@ struct TeleprompterView: View {
         .clipShape(cardShape)
         .contentShape(Rectangle())
         .onTapGesture { model.onTogglePlay?() }
+        // The whole card is one play/pause control to VoiceOver: the label states the action it'll
+        // perform, the value is the script itself (or the first-run prompt), and the explicit action
+        // toggles playback so VO activation matches the tap gesture above.
+        .accessibilityElement(children: .ignore)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(model.isPlaying ? "Pause teleprompter" : "Play teleprompter")
+        .accessibilityValue(accessibilityScriptValue)
+        .accessibilityAction { model.onTogglePlay?() }
         .onPreferenceChange(ContentHeightKey.self) { height in
             model.contentHeight = height
         }
