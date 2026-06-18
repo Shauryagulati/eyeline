@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import EyelineKit
 
 struct ScriptsView: View {
@@ -67,10 +68,8 @@ private struct ScriptEditor: View {
                 .font(.headline)
                 .onChange(of: title) { _, newValue in onChange(newValue, bodyText) }
 
-            TextEditor(text: $bodyText)
-                .font(.system(size: 14))
-                .scrollContentBackground(.hidden)
-                .padding(6)
+            ScriptTextView(text: $bodyText, font: .systemFont(ofSize: 14))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
                 .background(RoundedRectangle(cornerRadius: 6).fill(Color(.textBackgroundColor)))
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.separatorColor)))
                 .onChange(of: bodyText) { _, newValue in onChange(title, newValue) }
@@ -83,5 +82,53 @@ private struct ScriptEditor: View {
             }
         }
         .padding()
+    }
+}
+
+/// AppKit-backed multiline editor for the script body. SwiftUI's `TextEditor`, when hosted in a
+/// plain AppKit `NSWindow` (rather than a SwiftUI scene), doesn't reliably become the AppKit first
+/// responder that the standard Edit menu validates against — so Cut/Copy/Paste/Select All silently
+/// no-op even though typing works. Wrapping a real `NSTextView` puts a genuine responder in the
+/// chain, so the Edit menu (and ⌘C/⌘X/⌘V/⌘A) work, and it brings native undo for free.
+private struct ScriptTextView: NSViewRepresentable {
+    @Binding var text: String
+    var font: NSFont
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scroll = NSTextView.scrollableTextView()
+        scroll.drawsBackground = false
+        scroll.hasVerticalScroller = true
+        guard let textView = scroll.documentView as? NSTextView else { return scroll }
+        textView.delegate = context.coordinator
+        textView.font = font
+        textView.isRichText = false
+        textView.allowsUndo = true
+        // Plain-text editing for scripts — straight quotes/dashes, no autocorrect mangling.
+        textView.isAutomaticQuoteSubstitutionEnabled = false
+        textView.isAutomaticDashSubstitutionEnabled = false
+        textView.drawsBackground = false              // SwiftUI draws the rounded background behind us
+        textView.textContainerInset = NSSize(width: 6, height: 8)
+        textView.string = text
+        return scroll
+    }
+
+    func updateNSView(_ scroll: NSScrollView, context: Context) {
+        guard let textView = scroll.documentView as? NSTextView else { return }
+        // Only overwrite on an *external* change (e.g. switching scripts); never while the user is
+        // typing, or we'd stomp the insertion point.
+        if textView.string != text { textView.string = text }
+        textView.font = font
+    }
+
+    final class Coordinator: NSObject, NSTextViewDelegate {
+        private let parent: ScriptTextView
+        init(_ parent: ScriptTextView) { self.parent = parent }
+
+        func textDidChange(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView else { return }
+            parent.text = textView.string
+        }
     }
 }
