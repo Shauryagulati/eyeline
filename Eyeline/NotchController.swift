@@ -26,6 +26,11 @@ final class NotchController: NSObject {
     /// True only while a blocking alert (e.g. the mic-permission prompt) is on screen, so global
     /// hotkeys delivered into the modal run loop don't mutate scroll state behind the alert.
     private var isPresentingModal = false
+    /// Bumped on every `applyMode` call. An async permission callback captures this at request time;
+    /// if it no longer matches when the callback resolves, a newer mode request has superseded it, so
+    /// the stale callback drops out entirely — no commit, no alert. The newest request always wins,
+    /// so rapid mode-toggling can't commit an abandoned mode or stack permission dialogs. (H3)
+    private var modeRequestGeneration = 0
     /// Voice mode: where the recognized word sits in the card, as a fraction of the readable height
     /// from the top. Kept well above 0.5 (centered) so the lines you're about to speak stay visible
     /// below it — recognition lags your voice by a word or two, so your eyes are reading into that
@@ -117,6 +122,9 @@ final class NotchController: NSObject {
     /// `false` means it was rejected and the prior mode still stands. Switching never resets the
     /// scroll position (M3).
     func applyMode(_ newMode: ScrollMode, completion: @escaping (Bool) -> Void) {
+        // Stamp this request; an async callback below resolves only if it's still the latest. (H3)
+        modeRequestGeneration += 1
+        let generation = modeRequestGeneration
         switch newMode {
         case .timed:
             commitMode(.timed)
@@ -125,6 +133,7 @@ final class NotchController: NSObject {
         case .loudness:
             MicPermission.ensureAccess { granted in
                 Task { @MainActor in
+                    guard generation == self.modeRequestGeneration else { return }
                     if granted {
                         self.commitMode(.loudness)
                         completion(true)
@@ -139,6 +148,7 @@ final class NotchController: NSObject {
             // Voice needs BOTH microphone access and on-device speech recognition.
             MicPermission.ensureAccess { micGranted in
                 Task { @MainActor in
+                    guard generation == self.modeRequestGeneration else { return }
                     guard micGranted else {
                         self.presentMicDeniedAlert()
                         completion(false)
@@ -146,6 +156,7 @@ final class NotchController: NSObject {
                     }
                     SpeechPermission.ensureOnDeviceAccess { availability in
                         Task { @MainActor in
+                            guard generation == self.modeRequestGeneration else { return }
                             guard availability == .available else {
                                 self.presentSpeechUnavailableAlert(availability)
                                 completion(false)
@@ -214,6 +225,10 @@ final class NotchController: NSObject {
             pausePlayback()
             return
         }
+        // Nothing to read — a blank/whitespace script. Play is a no-op; the card shows the
+        // "add a script" hint instead of silently scrolling (or spinning up the recognizer on)
+        // an empty card. Matches the empty-state gate in TeleprompterView. (M6)
+        guard !viewModel.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         // Reached the end last time → start over from the top. Voice mode is excluded: there a tap
         // resumes following in place (so you can pause on a tangent and come back), and an explicit
         // Restart is the way back to the top. (M1)
@@ -366,6 +381,12 @@ final class NotchController: NSObject {
         viewModel.text = text
         driver.reset()
         viewModel.offset = 0
+        // If the active script was just emptied (e.g. deleted in the Scripts window) while playing,
+        // stop — otherwise the loop / recognizer keeps running against a blank card. Mirrors the
+        // empty-script Play guard in togglePlay. (M6)
+        if driver.isPlaying && text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            pausePlayback()
+        }
         // Re-tokenize for the new script so Voice mode aligns against the right words.
         if mode == .voice { aligner = ScriptAligner(script: text) }
     }
